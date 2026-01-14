@@ -1,0 +1,35 @@
+## --- Android/Java/Kotlin ---
+*.iml
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+/.idea/deploymentTargetSelector.xml
+/.idea/deploymentTargetDropDown.xml
+/captures
+.externalNativeBuild
+.cxx
+
+## --- Build Output ---
+**/build/
+/build
+
+## --- Kotlin & Lint ---
+*.unscripted.xml
+.kotlin/
+**/lint/intermediates/
+**/lint/generated/
+
+## --- OS specific ---
+.DS_Store
+Thumbs.db
+
+## --- Keystore & Sensitive Data ---
+# No subas nunca tus llaves de firmado ni secretos
+*.jks
+*.keystore
+google-services.json
