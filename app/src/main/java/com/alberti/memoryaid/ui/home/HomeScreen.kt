@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.alberti.memoryaid.ui.components.BuscadorBar
+import com.alberti.memoryaid.ui.components.ConfirmacionBorradoDialog
 import com.alberti.memoryaid.ui.components.EventoItem
 import com.alberti.memoryaid.ui.components.FiltrosSeccion
 import com.alberti.memoryaid.ui.components.ResumenDiarioWidget
@@ -34,6 +35,15 @@ fun HomeScreen(
     val estado by viewModel.uiState.collectAsStateWithLifecycle()
     val resumen by viewModel.resumenDiario.collectAsStateWithLifecycle()
     val textoBusqueda by viewModel.busqueda.collectAsStateWithLifecycle()
+    val eventoABorrar by viewModel.eventoABorrar.collectAsStateWithLifecycle()
+
+    eventoABorrar?.let { evento ->
+        ConfirmacionBorradoDialog(
+            nombreEvento = evento.titulo,
+            onConfirmar = { viewModel.confirmarBorrado() },
+            onDescartar = { viewModel.cancelarBorrado() }
+        )
+    }
 
     Scaffold(
         floatingActionButton = {
@@ -72,7 +82,7 @@ fun HomeScreen(
                     items(estado.eventos) { evento ->
                         EventoItem(
                             evento = evento,
-                            alEliminar = { viewModel.alEliminarEvento(evento) }
+                            alEliminar = { viewModel.mostrarConfirmacionBorrado(evento) }
                         )
                     }
                 }

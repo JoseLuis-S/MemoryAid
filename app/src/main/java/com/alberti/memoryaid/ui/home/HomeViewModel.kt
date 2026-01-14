@@ -32,6 +32,8 @@ class HomeViewModel @Inject constructor(
     private val _filtro = MutableStateFlow<TipoEvento?>(null)
     private val _busqueda = MutableStateFlow("")
     val busqueda = _busqueda.asStateFlow()
+    private val _eventoABorrar = MutableStateFlow<EventoMemoria?>(null)
+    val eventoABorrar = _eventoABorrar.asStateFlow()
 
     private val _resumenDiario = MutableStateFlow<Map<TipoEvento, Int>>(emptyMap())
     val resumenDiario = _resumenDiario.asStateFlow()
@@ -77,6 +79,23 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             obtenerResumenDiarioUseCase(System.currentTimeMillis()).collect { mapa ->
                 _resumenDiario.value = mapa
+            }
+        }
+    }
+
+    fun mostrarConfirmacionBorrado(evento: EventoMemoria) {
+        _eventoABorrar.value = evento
+    }
+
+    fun cancelarBorrado() {
+        _eventoABorrar.value = null
+    }
+
+    fun confirmarBorrado() {
+        _eventoABorrar.value?.let { evento ->
+            viewModelScope.launch {
+                eliminarEventoUseCase(evento)
+                _eventoABorrar.value = null
             }
         }
     }
