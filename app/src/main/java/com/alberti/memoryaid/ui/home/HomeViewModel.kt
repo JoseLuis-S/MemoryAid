@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
@@ -31,23 +32,16 @@ class HomeViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _filtro = MutableStateFlow<TipoEvento?>(null)
+    private val _busqueda = MutableStateFlow("")
+    val busqueda = _busqueda.asStateFlow()
+
     private val _resumenDiario = MutableStateFlow<Map<TipoEvento, Int>>(emptyMap())
     val resumenDiario = _resumenDiario.asStateFlow()
 
-    init {
-        cargarResumenDelDia()
-    }
-
-    private fun cargarResumenDelDia() {
-        viewModelScope.launch {
-            obtenerResumenDiarioUseCase(System.currentTimeMillis()).collect { mapa ->
-                _resumenDiario.value = mapa
-            }
-        }
-    }
-
     @OptIn(ExperimentalCoroutinesApi::class)
-    val uiState: StateFlow<HomeUiState> = _filtro.flatMapLatest { filtro ->
+    val uiState: StateFlow<HomeUiState> = combine(_filtro, _busqueda) { filtro, query ->
+        Pair(filtro, query)
+    }.flatMapLatest { (filtro, query) ->
         val flujoEventos = if (filtro == null) {
             obtenerTimelineUseCase()
         } else {
@@ -55,28 +49,50 @@ class HomeViewModel @Inject constructor(
         }
 
         flujoEventos.map { lista ->
-            HomeUiState(eventos = lista, filtroSeleccionado = filtro, estaCargando = false)
+            val listaFiltradaPorTexto = if (query.isBlank()) {
+                lista
+            } else {
+                lista.filter { evento ->
+                    evento.titulo.contains(query, ignoreCase = true) ||
+                            evento.descripcion.contains(query, ignoreCase = true)
+                }
+            }
+            HomeUiState(
+                eventos = listaFiltradaPorTexto,
+                filtroSeleccionado = filtro,
+                estaCargando = false
+            )
         }
     }
-        .onStart {
-            emit(HomeUiState(estaCargando = true))
-        }
-        .catch { e ->
-            emit(HomeUiState(mensajeError = "Error al cargar datos: ${e.message}"))
-        }
+        .onStart { emit(HomeUiState(estaCargando = true)) }
+        .catch { e -> emit(HomeUiState(mensajeError = "Error: ${e.message}")) }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = HomeUiState(estaCargando = true)
         )
 
+    init {
+        cargarResumenDelDia()
+    }
+
+    fun alCambiarBusqueda(nuevaQuery: String) {
+        _busqueda.value = nuevaQuery
+    }
+
     fun alCambiarFiltro(tipo: TipoEvento?) {
         _filtro.value = tipo
     }
 
     fun alEliminarEvento(evento: EventoMemoria) {
+        viewModelScope.launch { eliminarEventoUseCase(evento) }
+    }
+
+    private fun cargarResumenDelDia() {
         viewModelScope.launch {
-            eliminarEventoUseCase(evento)
+            obtenerResumenDiarioUseCase(System.currentTimeMillis()).collect { mapa ->
+                _resumenDiario.value = mapa
+            }
         }
     }
 }
