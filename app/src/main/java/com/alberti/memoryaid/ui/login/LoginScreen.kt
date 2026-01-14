@@ -83,13 +83,22 @@ fun LoginScreen(
     if (state.mostrarDialogoPin) {
         AlertDialog(
             onDismissRequest = { viewModel.ocultarDialogoPin() },
-            title = { Text("PIN de Administrador") },
+            title = {
+                Text(if (state.esPrimeraVezAdmin) "Configurar PIN Admin" else "PIN de Administrador")
+            },
             text = {
                 Column {
+                    Text(
+                        text = if (state.esPrimeraVezAdmin)
+                            "Cree un código de 4 dígitos para proteger las funciones de gestión."
+                        else "Introduzca su código de acceso.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
                     OutlinedTextField(
                         value = state.pinInput,
                         onValueChange = { viewModel.alCambiarPin(it) },
-                        label = { Text("Introduce 4 dígitos") },
+                        label = { Text(if (state.esPrimeraVezAdmin) "Nuevo PIN" else "Introduce PIN") },
                         visualTransformation = PasswordVisualTransformation(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         isError = state.errorPin != null,
@@ -100,14 +109,15 @@ fun LoginScreen(
                         Text(
                             text = state.errorPin!!,
                             color = MaterialTheme.colorScheme.error,
-                            style = MaterialTheme.typography.bodySmall
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(top = 4.dp)
                         )
                     }
                 }
             },
             confirmButton = {
-                Button(onClick = { viewModel.validarPinAdmin() }) {
-                    Text("Validar")
+                Button(onClick = { viewModel.ejecutarAccionAdmin() }) {
+                    Text(if (state.esPrimeraVezAdmin) "Guardar y Entrar" else "Validar")
                 }
             },
             dismissButton = {
