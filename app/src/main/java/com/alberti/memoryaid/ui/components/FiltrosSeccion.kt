@@ -30,7 +30,7 @@ fun FiltrosSeccion(
             FilterChip(
                 selected = seleccionado == tipo,
                 onClick = { alSeleccionar(tipo) },
-                label = { Text(tipo.name.lowercase().replaceFirstChar { it.uppercase() }) }
+                label = { Text(tipo.nombre) }
             )
         }
     }
