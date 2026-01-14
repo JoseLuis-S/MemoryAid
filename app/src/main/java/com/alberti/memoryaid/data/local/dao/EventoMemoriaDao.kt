@@ -32,4 +32,13 @@ interface EventoMemoriaDao {
             ORDER BY fechaHora DESC
         """)
     fun obtenerEventosFiltrados(tipo: String?, query: String): Flow<List<EventoMemoriaEntity>>
+
+    @Query("SELECT COUNT(*) FROM eventos_memoria WHERE tipo = :tipo AND fechaHora >= :desde")
+    suspend fun contarEventosPorTipo(tipo: String, desde: Long): Int
+
+    @Query("SELECT COUNT(*) FROM eventos_memoria WHERE fechaHora >= :desde")
+    suspend fun contarTotalEventos(desde: Long): Int
+
+    @Query("SELECT COUNT(*) FROM eventos_memoria WHERE tipo = :tipo AND fechaHora BETWEEN :desde AND :hasta")
+    suspend fun contarPorTipoEnRango(tipo: String, desde: Long, hasta: Long): Int
 }

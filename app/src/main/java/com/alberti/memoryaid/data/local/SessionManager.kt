@@ -42,4 +42,8 @@ class SessionManager @Inject constructor(
     }
 
     fun setRole(role: UserRole) { _rolActual.value = role }
+
+    fun logout() {
+        _rolActual.value = UserRole.USER
+    }
 }

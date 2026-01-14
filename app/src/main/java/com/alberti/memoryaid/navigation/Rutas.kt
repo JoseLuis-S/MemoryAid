@@ -12,4 +12,7 @@ sealed interface Rutas {
 
     @Serializable
     data object RutaLogin : Rutas
+
+    @Serializable
+    data object RutaAdmin : Rutas
 }

@@ -45,4 +45,8 @@ class RepositorioMemoriaImpl @Inject constructor (
             entities.map { it.toDomain() }
         }
     }
+
+    override suspend fun contarPorTipo(tipo: TipoEvento, desde: Long, hasta: Long): Int {
+        return dao.contarPorTipoEnRango(tipo.name, desde, hasta)
+    }
 }
