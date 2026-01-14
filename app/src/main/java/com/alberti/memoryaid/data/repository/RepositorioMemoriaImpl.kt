@@ -40,9 +40,9 @@ class RepositorioMemoriaImpl @Inject constructor (
         dao.eliminar(evento.toEntity())
     }
 
-    override fun buscarEventos(query: String): Flow<List<EventoMemoria>> {
-        return dao.buscarEventos(query).map { lista ->
-            lista.map { it.toDomain() }
+    override fun obtenerEventos(tipo: TipoEvento?, query: String): Flow<List<EventoMemoria>> {
+        return dao.obtenerEventosFiltrados(tipo?.name, query).map { entities ->
+            entities.map { it.toDomain() }
         }
     }
 }

@@ -5,9 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.alberti.memoryaid.domain.model.EventoMemoria
 import com.alberti.memoryaid.domain.model.TipoEvento
 import com.alberti.memoryaid.domain.usecase.EliminarEventoUseCase
-import com.alberti.memoryaid.domain.usecase.FiltrarEventosUseCase
+import com.alberti.memoryaid.domain.usecase.ObtenerEventosUseCase
 import com.alberti.memoryaid.domain.usecase.ObtenerResumenDiarioUseCase
-import com.alberti.memoryaid.domain.usecase.ObtenerTimelineUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -25,10 +24,9 @@ import kotlinx.coroutines.launch
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val obtenerTimelineUseCase: ObtenerTimelineUseCase,
-    private val filtrarEventosUseCase: FiltrarEventosUseCase,
     private val eliminarEventoUseCase: EliminarEventoUseCase,
-    private val obtenerResumenDiarioUseCase: ObtenerResumenDiarioUseCase
+    private val obtenerResumenDiarioUseCase: ObtenerResumenDiarioUseCase,
+    private val obtenerEventosUseCase: ObtenerEventosUseCase
 ) : ViewModel() {
 
     private val _filtro = MutableStateFlow<TipoEvento?>(null)
@@ -40,29 +38,16 @@ class HomeViewModel @Inject constructor(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val uiState: StateFlow<HomeUiState> = combine(_filtro, _busqueda) { filtro, query ->
-        Pair(filtro, query)
+        filtro to query
     }.flatMapLatest { (filtro, query) ->
-        val flujoEventos = if (filtro == null) {
-            obtenerTimelineUseCase()
-        } else {
-            filtrarEventosUseCase(filtro)
-        }
-
-        flujoEventos.map { lista ->
-            val listaFiltradaPorTexto = if (query.isBlank()) {
-                lista
-            } else {
-                lista.filter { evento ->
-                    evento.titulo.contains(query, ignoreCase = true) ||
-                            evento.descripcion.contains(query, ignoreCase = true)
-                }
+        obtenerEventosUseCase(filtro, query)
+            .map { lista ->
+                HomeUiState(
+                    eventos = lista,
+                    filtroSeleccionado = filtro,
+                    estaCargando = false
+                )
             }
-            HomeUiState(
-                eventos = listaFiltradaPorTexto,
-                filtroSeleccionado = filtro,
-                estaCargando = false
-            )
-        }
     }
         .onStart { emit(HomeUiState(estaCargando = true)) }
         .catch { e -> emit(HomeUiState(mensajeError = "Error: ${e.message}")) }

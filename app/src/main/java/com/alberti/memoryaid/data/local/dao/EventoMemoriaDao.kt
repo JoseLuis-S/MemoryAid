@@ -26,10 +26,10 @@ interface EventoMemoriaDao {
     suspend fun eliminar(evento: EventoMemoriaEntity)
 
     @Query("""
-        SELECT * FROM eventos_memoria 
-        WHERE titulo LIKE '%' || :query || '%' 
-        OR descripcion LIKE '%' || :query || '%' 
-        ORDER BY fechaHora DESC
-    """)
-    fun buscarEventos(query: String): Flow<List<EventoMemoriaEntity>>
+            SELECT * FROM eventos_memoria 
+            WHERE (:tipo IS NULL OR tipo = :tipo) 
+            AND (titulo LIKE '%' || :query || '%' OR descripcion LIKE '%' || :query || '%')
+            ORDER BY fechaHora DESC
+        """)
+    fun obtenerEventosFiltrados(tipo: String?, query: String): Flow<List<EventoMemoriaEntity>>
 }

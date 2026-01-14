@@ -10,5 +10,5 @@ interface RepositorioMemoria {
     fun obtenerTodosLosEventos(): Flow<List<EventoMemoria>>
     fun obtenerEventosPorTipo(tipo: TipoEvento): Flow<List<EventoMemoria>>
     fun obtenerEventosPorRango(inicio: Long, fin: Long): Flow<List<EventoMemoria>>
-    fun buscarEventos(query: String): Flow<List<EventoMemoria>>
+    fun obtenerEventos(tipo: TipoEvento?, query: String): Flow<List<EventoMemoria>>
 }
