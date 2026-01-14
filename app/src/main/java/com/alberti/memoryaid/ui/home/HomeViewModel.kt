@@ -2,8 +2,10 @@ package com.alberti.memoryaid.ui.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.alberti.memoryaid.data.local.SessionManager
 import com.alberti.memoryaid.domain.model.EventoMemoria
 import com.alberti.memoryaid.domain.model.TipoEvento
+import com.alberti.memoryaid.domain.model.UserRole
 import com.alberti.memoryaid.domain.usecase.EliminarEventoUseCase
 import com.alberti.memoryaid.domain.usecase.ObtenerEventosUseCase
 import com.alberti.memoryaid.domain.usecase.ObtenerResumenDiarioUseCase
@@ -24,6 +26,7 @@ import kotlinx.coroutines.launch
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
+    private val sessionManager: SessionManager,
     private val eliminarEventoUseCase: EliminarEventoUseCase,
     private val obtenerResumenDiarioUseCase: ObtenerResumenDiarioUseCase,
     private val obtenerEventosUseCase: ObtenerEventosUseCase
@@ -37,6 +40,7 @@ class HomeViewModel @Inject constructor(
 
     private val _resumenDiario = MutableStateFlow<Map<TipoEvento, Int>>(emptyMap())
     val resumenDiario = _resumenDiario.asStateFlow()
+    val role = sessionManager.rolActual
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val uiState: StateFlow<HomeUiState> = combine(_filtro, _busqueda) { filtro, query ->
@@ -61,6 +65,14 @@ class HomeViewModel @Inject constructor(
 
     init {
         cargarResumenDelDia()
+    }
+
+    fun esAdmin() = role.value == UserRole.ADMIN
+
+    fun purgarBaseDeDatos() {
+        if (esAdmin()) {
+            viewModelScope.launch { /* repo.deleteAll() */ }
+        }
     }
 
     fun alCambiarBusqueda(nuevaQuery: String) {
