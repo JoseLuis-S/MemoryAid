@@ -49,4 +49,8 @@ class RepositorioMemoriaImpl @Inject constructor (
     override suspend fun contarPorTipo(tipo: TipoEvento, desde: Long, hasta: Long): Int {
         return dao.contarPorTipoEnRango(tipo.name, desde, hasta)
     }
+
+    override suspend fun contarTotal(desde: Long, hasta: Long): Int {
+        return dao.contarTotalEnRango(desde, hasta)
+    }
 }

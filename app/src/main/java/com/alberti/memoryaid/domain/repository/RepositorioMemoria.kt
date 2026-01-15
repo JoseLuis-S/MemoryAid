@@ -12,4 +12,6 @@ interface RepositorioMemoria {
     fun obtenerEventosPorRango(inicio: Long, fin: Long): Flow<List<EventoMemoria>>
     fun obtenerEventos(tipo: TipoEvento?, query: String): Flow<List<EventoMemoria>>
     suspend fun contarPorTipo(tipo: TipoEvento, desde: Long, hasta: Long = System.currentTimeMillis()): Int
+
+    suspend fun contarTotal(desde: Long, hasta: Long = System.currentTimeMillis()): Int
 }

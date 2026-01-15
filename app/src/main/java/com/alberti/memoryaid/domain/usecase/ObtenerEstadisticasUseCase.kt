@@ -9,18 +9,23 @@ class ObtenerEstadisticasUseCase @Inject constructor(
     private val repositorio: RepositorioMemoria
 ) {
     suspend operator fun invoke(): EstadisticasAdmin {
-        val haceUnaSemana = System.currentTimeMillis() - (7 * 24 * 60 * 60 * 1000)
+        val ahora = System.currentTimeMillis()
+        val haceUnaSemana = ahora - (7 * 24 * 60 * 60 * 1000)
         val haceDosSemanas = haceUnaSemana - (7 * 24 * 60 * 60 * 1000)
 
-        val crisisActual = repositorio.contarPorTipo(TipoEvento.MEDICACION, haceUnaSemana)
-        val crisisPrevia = repositorio.contarPorTipo(TipoEvento.MEDICACION, haceDosSemanas, haceUnaSemana)
+        val crisisActual = repositorio.contarPorTipo(TipoEvento.CRISIS_CONDUCTA, haceUnaSemana, ahora)
+        val crisisPrevia = repositorio.contarPorTipo(TipoEvento.CRISIS_CONDUCTA, haceDosSemanas, haceUnaSemana)
+
+        val medicinas = repositorio.contarPorTipo(TipoEvento.MEDICACION, haceUnaSemana, ahora)
+
+        val totalRegistros = repositorio.contarTotal(haceUnaSemana, ahora)
 
         val tendencia = calcularTendencia(crisisActual, crisisPrevia)
 
         return EstadisticasAdmin(
-            medicinasEstaSemana = repositorio.contarPorTipo(TipoEvento.MEDICACION, haceUnaSemana),
+            medicinasEstaSemana = medicinas,
             crisisEstaSemana = crisisActual,
-            notasEstaSemana = repositorio.contarPorTipo(TipoEvento.NOTAS_GENERALES, haceUnaSemana),
+            notasEstaSemana = totalRegistros,
             tendenciaCrisis = tendencia
         )
     }

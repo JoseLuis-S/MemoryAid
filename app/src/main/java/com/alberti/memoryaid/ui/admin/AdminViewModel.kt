@@ -2,7 +2,6 @@ package com.alberti.memoryaid.ui.admin
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.room.util.copy
 import com.alberti.memoryaid.data.local.SessionManager
 import com.alberti.memoryaid.domain.usecase.ObtenerEstadisticasUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -29,11 +28,19 @@ class AdminViewModel @Inject constructor(
     private fun cargarEstadisticas() {
         viewModelScope.launch {
             _uiState.update { it.copy(estaCargando = true) }
-            val stats = obtenerEstadisticasUseCase()
-            _uiState.update { it.copy(
-                estadisticas = stats,
-                estaCargando = false
-            )}
+            try {
+                val stats = obtenerEstadisticasUseCase()
+                _uiState.update { it.copy(
+                    estadisticas = stats,
+                    estaCargando = false,
+                    mensajeError = null
+                )}
+            } catch (e: Exception) {
+                _uiState.update { it.copy(
+                    estaCargando = false,
+                    mensajeError = "Error al cargar datos"
+                )}
+            }
         }
     }
 

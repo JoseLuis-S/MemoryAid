@@ -41,4 +41,7 @@ interface EventoMemoriaDao {
 
     @Query("SELECT COUNT(*) FROM eventos_memoria WHERE tipo = :tipo AND fechaHora BETWEEN :desde AND :hasta")
     suspend fun contarPorTipoEnRango(tipo: String, desde: Long, hasta: Long): Int
+
+    @Query("SELECT COUNT(*) FROM eventos_memoria WHERE fechaHora BETWEEN :desde AND :hasta")
+    suspend fun contarTotalEnRango(desde: Long, hasta: Long): Int
 }
