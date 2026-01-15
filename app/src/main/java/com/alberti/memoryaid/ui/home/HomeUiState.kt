@@ -4,8 +4,12 @@ import com.alberti.memoryaid.domain.model.EventoMemoria
 import com.alberti.memoryaid.domain.model.TipoEvento
 
 data class HomeUiState(
-    val estaCargando: Boolean = false,
     val eventos: List<EventoMemoria> = emptyList(),
+    val estaCargando: Boolean = false,
+    val filtroSeleccionado: TipoEvento? = null,
     val mensajeError: String? = null,
-    val filtroSeleccionado: TipoEvento? = null
+    val mostrarDialogoPin: Boolean = false,
+    val pinInput: String = "",
+    val errorPin: String? = null,
+    val navegarAAdmin: Boolean = false
 )

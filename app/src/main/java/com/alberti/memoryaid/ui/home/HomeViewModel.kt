@@ -12,87 +12,64 @@ import com.alberti.memoryaid.domain.usecase.ObtenerResumenDiarioUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val sessionManager: SessionManager,
+    private val obtenerEventosUseCase: ObtenerEventosUseCase,
     private val eliminarEventoUseCase: EliminarEventoUseCase,
     private val obtenerResumenDiarioUseCase: ObtenerResumenDiarioUseCase,
-    private val obtenerEventosUseCase: ObtenerEventosUseCase
+    private val sessionManager: SessionManager
 ) : ViewModel() {
 
-    private val _filtro = MutableStateFlow<TipoEvento?>(null)
+    private val _uiState = MutableStateFlow(HomeUiState())
+    val uiState = _uiState.asStateFlow()
+
     private val _busqueda = MutableStateFlow("")
     val busqueda = _busqueda.asStateFlow()
+
+    private val _filtro = MutableStateFlow<TipoEvento?>(null)
+
     private val _eventoABorrar = MutableStateFlow<EventoMemoria?>(null)
     val eventoABorrar = _eventoABorrar.asStateFlow()
 
-    private val _resumenDiario = MutableStateFlow<Map<TipoEvento, Int>>(emptyMap())
-    val resumenDiario = _resumenDiario.asStateFlow()
     val role = sessionManager.rolActual
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    val uiState: StateFlow<HomeUiState> = combine(_filtro, _busqueda) { filtro, query ->
-        filtro to query
-    }.flatMapLatest { (filtro, query) ->
-        obtenerEventosUseCase(filtro, query)
-            .map { lista ->
-                HomeUiState(
-                    eventos = lista,
-                    filtroSeleccionado = filtro,
-                    estaCargando = false
-                )
-            }
+    private fun getInicioDelDia(): Long {
+        return java.util.Calendar.getInstance().apply {
+            set(java.util.Calendar.HOUR_OF_DAY, 0)
+            set(java.util.Calendar.MINUTE, 0)
+            set(java.util.Calendar.SECOND, 0)
+            set(java.util.Calendar.MILLISECOND, 0)
+        }.timeInMillis
     }
-        .onStart { emit(HomeUiState(estaCargando = true)) }
-        .catch { e -> emit(HomeUiState(mensajeError = "Error: ${e.message}")) }
+
+    val resumenDiario = obtenerResumenDiarioUseCase(fecha = getInicioDelDia())
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
-            initialValue = HomeUiState(estaCargando = true)
+            initialValue = emptyMap<TipoEvento, Int>()
         )
 
-    init {
-        cargarResumenDelDia()
-    }
-
-    fun esAdmin() = role.value == UserRole.ADMIN
-
-    fun purgarBaseDeDatos() {
-        if (esAdmin()) {
-            viewModelScope.launch { /* repo.deleteAll() */ }
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val eventos = combine(_busqueda, _filtro) { query, filtro ->
+        Pair(query, filtro)
+    }.flatMapLatest { (query, filtro) ->
+        obtenerEventosUseCase(filtro, query)
+    }.onStart { _uiState.update { it.copy(estaCargando = true) } }
+        .onEach { lista ->
+            _uiState.update { it.copy(eventos = lista, estaCargando = false) }
         }
-    }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    fun alCambiarBusqueda(nuevaQuery: String) {
-        _busqueda.value = nuevaQuery
+    fun alCambiarBusqueda(nuevaBusqueda: String) {
+        _busqueda.value = nuevaBusqueda
     }
 
     fun alCambiarFiltro(tipo: TipoEvento?) {
         _filtro.value = tipo
-    }
-
-    fun alEliminarEvento(evento: EventoMemoria) {
-        viewModelScope.launch { eliminarEventoUseCase(evento) }
-    }
-
-    private fun cargarResumenDelDia() {
-        viewModelScope.launch {
-            obtenerResumenDiarioUseCase(System.currentTimeMillis()).collect { mapa ->
-                _resumenDiario.value = mapa
-            }
-        }
+        _uiState.update { it.copy(filtroSeleccionado = tipo) }
     }
 
     fun mostrarConfirmacionBorrado(evento: EventoMemoria) {
@@ -104,11 +81,44 @@ class HomeViewModel @Inject constructor(
     }
 
     fun confirmarBorrado() {
-        _eventoABorrar.value?.let { evento ->
-            viewModelScope.launch {
-                eliminarEventoUseCase(evento)
+        viewModelScope.launch {
+            _eventoABorrar.value?.let {
+                eliminarEventoUseCase(it)
                 _eventoABorrar.value = null
             }
         }
+    }
+
+    fun alClickAdmin() {
+        if (sessionManager.rolActual.value == UserRole.ADMIN) {
+            _uiState.update { it.copy(navegarAAdmin = true) }
+        } else {
+            _uiState.update { it.copy(mostrarDialogoPin = true, pinInput = "", errorPin = null) }
+        }
+    }
+
+    fun alCambiarPin(nuevo: String) {
+        if (nuevo.length <= 4) {
+            _uiState.update { it.copy(pinInput = nuevo, errorPin = null) }
+        }
+    }
+
+    fun validarPinAdmin() {
+        viewModelScope.launch {
+            val esValido = sessionManager.loginComoAdmin(_uiState.value.pinInput)
+            if (esValido) {
+                _uiState.update { it.copy(mostrarDialogoPin = false, navegarAAdmin = true) }
+            } else {
+                _uiState.update { it.copy(errorPin = "PIN incorrecto") }
+            }
+        }
+    }
+
+    fun ocultarDialogoPin() {
+        _uiState.update { it.copy(mostrarDialogoPin = false) }
+    }
+
+    fun resetNavegacionAdmin() {
+        _uiState.update { it.copy(navegarAAdmin = false) }
     }
 }
