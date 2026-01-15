@@ -41,6 +41,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.alberti.memoryaid.ui.components.GraficoComparativo
 import com.alberti.memoryaid.ui.components.StatCard
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -128,6 +129,17 @@ fun AdminScreen(
                     subtitulo = state.estadisticas.tendenciaCrisis,
                     modifier = Modifier.weight(1f),
                     color = MaterialTheme.colorScheme.errorContainer
+                )
+            }
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
+            ) {
+                GraficoComparativo(
+                    medicinas = state.estadisticas.medicinasEstaSemana,
+                    crisis = state.estadisticas.crisisEstaSemana,
+                    modifier = Modifier.padding(16.dp)
                 )
             }
 
