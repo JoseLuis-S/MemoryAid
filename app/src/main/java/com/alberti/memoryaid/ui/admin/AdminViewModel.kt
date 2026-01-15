@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.alberti.memoryaid.data.local.SessionManager
 import com.alberti.memoryaid.domain.usecase.ObtenerEstadisticasUseCase
+import com.alberti.memoryaid.domain.usecase.PurgarDatosUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,6 +16,7 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class AdminViewModel @Inject constructor(
     private val obtenerEstadisticasUseCase: ObtenerEstadisticasUseCase,
+    private val purgarDatosUseCase: PurgarDatosUseCase,
     private val sessionManager: SessionManager
 ) : ViewModel() {
 
@@ -46,5 +48,16 @@ class AdminViewModel @Inject constructor(
 
     fun cerrarSesion() {
         sessionManager.logout()
+    }
+
+    fun purgarBaseDeDatos() {
+        viewModelScope.launch {
+            purgarDatosUseCase()
+            cargarEstadisticas()
+        }
+    }
+
+    fun mostrarDialogoPurga(mostrar: Boolean) {
+        _uiState.update { it.copy(mostrarConfirmacionPurga = mostrar) }
     }
 }

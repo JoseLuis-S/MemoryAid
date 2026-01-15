@@ -53,4 +53,8 @@ class RepositorioMemoriaImpl @Inject constructor (
     override suspend fun contarTotal(desde: Long, hasta: Long): Int {
         return dao.contarTotalEnRango(desde, hasta)
     }
+
+    override suspend fun borrarTodo() {
+        dao.borrarTodosLosEventos()
+    }
 }

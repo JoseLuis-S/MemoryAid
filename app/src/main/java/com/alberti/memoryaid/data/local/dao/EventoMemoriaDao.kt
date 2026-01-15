@@ -44,4 +44,7 @@ interface EventoMemoriaDao {
 
     @Query("SELECT COUNT(*) FROM eventos_memoria WHERE fechaHora BETWEEN :desde AND :hasta")
     suspend fun contarTotalEnRango(desde: Long, hasta: Long): Int
+
+    @Query("DELETE FROM eventos_memoria")
+    suspend fun borrarTodosLosEventos()
 }
