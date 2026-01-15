@@ -15,7 +15,12 @@ class EliminarEventoUseCaseTest {
 
     @Test
     fun `debe llamar al repositorio para eliminar el evento`() = runTest {
-        val evento = EventoMemoria("T", "D", 0L, TipoEvento.OTROS)
+        val evento = EventoMemoria(
+            titulo = "Evento de prueba",
+            descripcion = "Descripción de prueba",
+            fechaHora = 123456789L,
+            tipo = TipoEvento.OTROS
+        )
 
         useCase(evento)
 
