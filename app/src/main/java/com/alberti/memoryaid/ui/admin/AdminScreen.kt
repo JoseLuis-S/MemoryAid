@@ -1,5 +1,6 @@
 package com.alberti.memoryaid.ui.admin
 
+import android.content.Intent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.DeleteForever
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -31,8 +33,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -46,6 +50,19 @@ fun AdminScreen(
     onBack: () -> Unit
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+
+    LaunchedEffect(state.informeGenerado) {
+        state.informeGenerado?.let { texto ->
+            val intent = Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_SUBJECT, "Informe Clínico MemoryAid")
+                putExtra(Intent.EXTRA_TEXT, texto)
+            }
+            context.startActivity(Intent.createChooser(intent, "Compartir informe vía"))
+            viewModel.informeConsumido()
+        }
+    }
 
     if (state.mostrarConfirmacionPurga) {
         AlertDialog(
@@ -123,6 +140,21 @@ fun AdminScreen(
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
+            Text("Acciones de Gestión", style = MaterialTheme.typography.titleLarge)
+
+            Button(
+                onClick = { viewModel.exportarInforme() },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary),
+                enabled = !state.estaCargando
+            ) {
+                Icon(Icons.Default.Share, contentDescription = null)
+                Spacer(Modifier.width(8.dp))
+                Text("EXPORTAR INFORME CLÍNICO")
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
             Text("Zona de Peligro", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.error)
 
             Card(
@@ -133,7 +165,7 @@ fun AdminScreen(
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text("Borrar Historial", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                     Text(
-                        "Al pulsar este botón eliminarás permanentemente todos los registros guardados en la aplicación.",
+                        "Elimina permanentemente todos los registros guardados en la aplicación.",
                         style = MaterialTheme.typography.bodySmall
                     )
                     Spacer(modifier = Modifier.height(16.dp))

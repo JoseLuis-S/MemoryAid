@@ -3,6 +3,7 @@ package com.alberti.memoryaid.ui.admin
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.alberti.memoryaid.data.local.SessionManager
+import com.alberti.memoryaid.domain.usecase.GenerarInformeUseCase
 import com.alberti.memoryaid.domain.usecase.ObtenerEstadisticasUseCase
 import com.alberti.memoryaid.domain.usecase.PurgarDatosUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -12,11 +13,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-
 @HiltViewModel
 class AdminViewModel @Inject constructor(
     private val obtenerEstadisticasUseCase: ObtenerEstadisticasUseCase,
     private val purgarDatosUseCase: PurgarDatosUseCase,
+    private val generarInformeUseCase: GenerarInformeUseCase,
     private val sessionManager: SessionManager
 ) : ViewModel() {
 
@@ -59,5 +60,21 @@ class AdminViewModel @Inject constructor(
 
     fun mostrarDialogoPurga(mostrar: Boolean) {
         _uiState.update { it.copy(mostrarConfirmacionPurga = mostrar) }
+    }
+
+    fun exportarInforme() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(estaCargando = true) }
+            try {
+                val textoInforme = generarInformeUseCase()
+                _uiState.update { it.copy(informeGenerado = textoInforme, estaCargando = false) }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(estaCargando = false) }
+            }
+        }
+    }
+
+    fun informeConsumido() {
+        _uiState.update { it.copy(informeGenerado = null) }
     }
 }

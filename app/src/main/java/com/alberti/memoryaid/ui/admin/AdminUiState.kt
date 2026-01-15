@@ -7,5 +7,6 @@ data class AdminUiState(
     val estadisticas: EstadisticasAdmin = EstadisticasAdmin(),
     val mensajeError: String? = null,
     val operacionExitosa: Boolean = false,
-    val mostrarConfirmacionPurga: Boolean = false
+    val mostrarConfirmacionPurga: Boolean = false,
+    val informeGenerado: String? = null
 )
