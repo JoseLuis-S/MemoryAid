@@ -12,11 +12,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.DeleteForever
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -28,6 +31,8 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -38,6 +43,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -65,6 +71,60 @@ fun AdminScreen(
         }
     }
 
+    if (state.mostrarDialogoPin) {
+        AlertDialog(
+            onDismissRequest = { viewModel.mostrarDialogoPin(false) },
+            title = { Text("Cambiar PIN de Acceso") },
+            text = {
+                Column {
+                    Text("Ingresa el nuevo PIN de 4 dígitos para el administrador.", style = MaterialTheme.typography.bodySmall)
+                    Spacer(Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = state.nuevoPinInput,
+                        onValueChange = { viewModel.alCambiarNuevoPin(it) },
+                        label = { Text("Nuevo PIN") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        singleLine = true,
+                        isError = state.errorValidacion != null,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    state.errorValidacion?.let {
+                        Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.labelSmall)
+                    }
+                }
+            },
+            confirmButton = {
+                Button(onClick = { viewModel.confirmarCambioPin() }) { Text("GUARDAR") }
+            },
+            dismissButton = {
+                TextButton(onClick = { viewModel.mostrarDialogoPin(false) }) { Text("CANCELAR") }
+            }
+        )
+    }
+
+    if (state.mostrarDialogoEmergencia) {
+        AlertDialog(
+            onDismissRequest = { viewModel.mostrarDialogoEmergencia(false) },
+            title = { Text("Contacto de Emergencia") },
+            text = {
+                OutlinedTextField(
+                    value = state.nuevoEmergenciaInput,
+                    onValueChange = { viewModel.alCambiarNuevoEmergencia(it) },
+                    label = { Text("Número de teléfono") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
+            confirmButton = {
+                Button(onClick = { viewModel.confirmarCambioEmergencia() }) { Text("GUARDAR") }
+            },
+            dismissButton = {
+                TextButton(onClick = { viewModel.mostrarDialogoEmergencia(false) }) { Text("CANCELAR") }
+            }
+        )
+    }
+
     if (state.mostrarConfirmacionPurga) {
         AlertDialog(
             onDismissRequest = { viewModel.mostrarDialogoPurga(false) },
@@ -72,18 +132,13 @@ fun AdminScreen(
             text = { Text("¿Estás seguro de que deseas borrar todos los datos? Esta acción no se puede deshacer.") },
             confirmButton = {
                 TextButton(
-                    onClick = {
-                        viewModel.purgarBaseDeDatos()
-                        viewModel.mostrarDialogoPurga(false)
-                    }
+                    onClick = { viewModel.purgarBaseDeDatos() }
                 ) {
                     Text("BORRAR TODO", color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
-                TextButton(onClick = { viewModel.mostrarDialogoPurga(false) }) {
-                    Text("CANCELAR")
-                }
+                TextButton(onClick = { viewModel.mostrarDialogoPurga(false) }) { Text("CANCELAR") }
             }
         )
     }
@@ -143,13 +198,6 @@ fun AdminScreen(
                 )
             }
 
-            StatCard(
-                titulo = "Total Registros",
-                valor = state.estadisticas.notasEstaSemana.toString(),
-                color = MaterialTheme.colorScheme.secondaryContainer,
-                modifier = Modifier.fillMaxWidth()
-            )
-
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
             Text("Acciones de Gestión", style = MaterialTheme.typography.titleLarge)
@@ -163,6 +211,24 @@ fun AdminScreen(
                 Icon(Icons.Default.Share, contentDescription = null)
                 Spacer(Modifier.width(8.dp))
                 Text("EXPORTAR INFORME CLÍNICO")
+            }
+
+            OutlinedButton(
+                onClick = { viewModel.mostrarDialogoEmergencia(true) },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(Icons.Default.Phone, null)
+                Spacer(Modifier.width(8.dp))
+                Text("EDITAR NÚMERO DE EMERGENCIA")
+            }
+
+            OutlinedButton(
+                onClick = { viewModel.mostrarDialogoPin(true) },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(Icons.Default.Lock, null)
+                Spacer(Modifier.width(8.dp))
+                Text("MODIFICAR PIN ADMIN")
             }
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -187,7 +253,7 @@ fun AdminScreen(
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
                     ) {
                         Icon(Icons.Default.DeleteForever, contentDescription = null)
-                        Spacer(modifier = Modifier.width(8.dp))
+                        Spacer(Modifier.width(8.dp))
                         Text("PURGAR BASE DE DATOS")
                     }
                 }

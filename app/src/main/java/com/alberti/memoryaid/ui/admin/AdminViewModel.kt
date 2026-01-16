@@ -9,7 +9,9 @@ import com.alberti.memoryaid.domain.usecase.PurgarDatosUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -24,6 +26,12 @@ class AdminViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(AdminUiState())
     val uiState = _uiState.asStateFlow()
 
+    val contactoActual = sessionManager.contactoEmergencia.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = ""
+    )
+
     init {
         cargarEstadisticas()
     }
@@ -33,28 +41,54 @@ class AdminViewModel @Inject constructor(
             _uiState.update { it.copy(estaCargando = true) }
             try {
                 val stats = obtenerEstadisticasUseCase()
-                _uiState.update { it.copy(
-                    estadisticas = stats,
-                    estaCargando = false,
-                    mensajeError = null
-                )}
+                _uiState.update { it.copy(estadisticas = stats, estaCargando = false) }
             } catch (e: Exception) {
-                _uiState.update { it.copy(
-                    estaCargando = false,
-                    mensajeError = "Error al cargar datos"
-                )}
+                _uiState.update { it.copy(estaCargando = false, mensajeError = "Error al cargar datos") }
             }
         }
     }
 
-    fun cerrarSesion() {
-        sessionManager.logout()
+    fun mostrarDialogoPin(mostrar: Boolean) {
+        _uiState.update { it.copy(mostrarDialogoPin = mostrar, nuevoPinInput = "", errorValidacion = null) }
+    }
+
+    fun alCambiarNuevoPin(input: String) {
+        if (input.length <= 4) {
+            _uiState.update { it.copy(nuevoPinInput = input, errorValidacion = null) }
+        }
+    }
+
+    fun confirmarCambioPin() {
+        if (_uiState.value.nuevoPinInput.length == 4) {
+            viewModelScope.launch {
+                sessionManager.guardarPin(_uiState.value.nuevoPinInput)
+                _uiState.update { it.copy(mostrarDialogoPin = false) }
+            }
+        } else {
+            _uiState.update { it.copy(errorValidacion = "El PIN debe tener 4 dígitos") }
+        }
+    }
+
+    fun mostrarDialogoEmergencia(mostrar: Boolean) {
+        _uiState.update { it.copy(mostrarDialogoEmergencia = mostrar, nuevoEmergenciaInput = contactoActual.value ?: "", errorValidacion = null) }
+    }
+
+    fun alCambiarNuevoEmergencia(input: String) {
+        _uiState.update { it.copy(nuevoEmergenciaInput = input) }
+    }
+
+    fun confirmarCambioEmergencia() {
+        viewModelScope.launch {
+            sessionManager.guardarContactoEmergencia(_uiState.value.nuevoEmergenciaInput)
+            _uiState.update { it.copy(mostrarDialogoEmergencia = false) }
+        }
     }
 
     fun purgarBaseDeDatos() {
         viewModelScope.launch {
             purgarDatosUseCase()
             cargarEstadisticas()
+            _uiState.update { it.copy(mostrarConfirmacionPurga = false) }
         }
     }
 
@@ -64,17 +98,20 @@ class AdminViewModel @Inject constructor(
 
     fun exportarInforme() {
         viewModelScope.launch {
-            _uiState.update { it.copy(estaCargando = true) }
             try {
-                val textoInforme = generarInformeUseCase()
-                _uiState.update { it.copy(informeGenerado = textoInforme, estaCargando = false) }
+                val informe = generarInformeUseCase()
+                _uiState.update { it.copy(informeGenerado = informe) }
             } catch (e: Exception) {
-                _uiState.update { it.copy(estaCargando = false) }
+                _uiState.update { it.copy(mensajeError = "Fallo al exportar") }
             }
         }
     }
 
     fun informeConsumido() {
         _uiState.update { it.copy(informeGenerado = null) }
+    }
+
+    fun cerrarSesion() {
+        sessionManager.logout()
     }
 }
