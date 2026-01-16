@@ -2,16 +2,9 @@ package com.alberti.memoryaid.ui.admin
 
 import android.content.Intent
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -21,22 +14,7 @@ import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Share
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -45,7 +23,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.alberti.memoryaid.ui.components.GraficoComparativo
 import com.alberti.memoryaid.ui.components.StatCard
@@ -74,11 +52,24 @@ fun AdminScreen(
     if (state.mostrarDialogoPin) {
         AlertDialog(
             onDismissRequest = { viewModel.mostrarDialogoPin(false) },
-            title = { Text("Cambiar PIN de Acceso") },
+            shape = RoundedCornerShape(28.dp),
+            containerColor = MaterialTheme.colorScheme.surface,
+            title = {
+                Text(
+                    text = "Seguridad de Acceso",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            },
             text = {
                 Column {
-                    Text("Ingresa el nuevo PIN de 4 dígitos para el administrador.", style = MaterialTheme.typography.bodySmall)
-                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        text = "Ingresa el nuevo PIN de 4 dígitos para proteger el panel.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(Modifier.height(16.dp))
                     OutlinedTextField(
                         value = state.nuevoPinInput,
                         onValueChange = { viewModel.alCambiarNuevoPin(it) },
@@ -86,15 +77,25 @@ fun AdminScreen(
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         singleLine = true,
                         isError = state.errorValidacion != null,
+                        shape = RoundedCornerShape(16.dp),
                         modifier = Modifier.fillMaxWidth()
                     )
                     state.errorValidacion?.let {
-                        Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.labelSmall)
+                        Text(
+                            text = it,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.labelSmall,
+                            modifier = Modifier.padding(top = 4.dp, start = 4.dp)
+                        )
                     }
                 }
             },
             confirmButton = {
-                Button(onClick = { viewModel.confirmarCambioPin() }) { Text("GUARDAR") }
+                Button(
+                    onClick = { viewModel.confirmarCambioPin() },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                ) { Text("GUARDAR") }
             },
             dismissButton = {
                 TextButton(onClick = { viewModel.mostrarDialogoPin(false) }) { Text("CANCELAR") }
@@ -105,7 +106,16 @@ fun AdminScreen(
     if (state.mostrarDialogoEmergencia) {
         AlertDialog(
             onDismissRequest = { viewModel.mostrarDialogoEmergencia(false) },
-            title = { Text("Contacto de Emergencia") },
+            shape = RoundedCornerShape(28.dp),
+            containerColor = MaterialTheme.colorScheme.surface,
+            title = {
+                Text(
+                    text = "Configurar Emergencia",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            },
             text = {
                 OutlinedTextField(
                     value = state.nuevoEmergenciaInput,
@@ -113,11 +123,16 @@ fun AdminScreen(
                     label = { Text("Número de teléfono") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                     singleLine = true,
+                    shape = RoundedCornerShape(16.dp),
                     modifier = Modifier.fillMaxWidth()
                 )
             },
             confirmButton = {
-                Button(onClick = { viewModel.confirmarCambioEmergencia() }) { Text("GUARDAR") }
+                Button(
+                    onClick = { viewModel.confirmarCambioEmergencia() },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                ) { Text("ACTUALIZAR") }
             },
             dismissButton = {
                 TextButton(onClick = { viewModel.mostrarDialogoEmergencia(false) }) { Text("CANCELAR") }
@@ -128,14 +143,16 @@ fun AdminScreen(
     if (state.mostrarConfirmacionPurga) {
         AlertDialog(
             onDismissRequest = { viewModel.mostrarDialogoPurga(false) },
-            title = { Text("Confirmar Purga") },
-            text = { Text("¿Estás seguro de que deseas borrar todos los datos? Esta acción no se puede deshacer.") },
+            shape = RoundedCornerShape(28.dp),
+            icon = { Icon(Icons.Default.DeleteForever, contentDescription = null, tint = MaterialTheme.colorScheme.error) },
+            title = { Text("¿Vaciar base de datos?") },
+            text = { Text("Esta acción eliminará permanentemente todos los registros. No se puede deshacer.") },
             confirmButton = {
-                TextButton(
-                    onClick = { viewModel.purgarBaseDeDatos() }
-                ) {
-                    Text("BORRAR TODO", color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.Bold)
-                }
+                Button(
+                    onClick = { viewModel.purgarBaseDeDatos() },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+                    shape = RoundedCornerShape(12.dp)
+                ) { Text("CONFIRMAR PURGA") }
             },
             dismissButton = {
                 TextButton(onClick = { viewModel.mostrarDialogoPurga(false) }) { Text("CANCELAR") }
@@ -144,120 +161,183 @@ fun AdminScreen(
     }
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            TopAppBar(
-                title = { Text("Panel de Administración") },
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        text = "Panel de Control",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                },
                 navigationIcon = {
-                    IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, null) }
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, null, tint = MaterialTheme.colorScheme.primary)
+                    }
                 },
                 actions = {
                     IconButton(onClick = {
                         viewModel.cerrarSesion()
                         onBack()
                     }) {
-                        Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = "Cerrar Sesión")
+                        Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = "Cerrar Sesión", tint = MaterialTheme.colorScheme.secondary)
                     }
-                }
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background
+                )
             )
         }
     ) { padding ->
         Column(
             modifier = Modifier
                 .padding(padding)
-                .padding(16.dp)
+                .padding(horizontal = 20.dp)
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            Text("Resumen de la Semana", style = MaterialTheme.typography.titleLarge)
+            Spacer(Modifier.height(4.dp))
 
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(
+                text = "Métricas de Cuidado",
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 StatCard(
                     titulo = "Medicinas",
                     valor = state.estadisticas.medicinasEstaSemana.toString(),
                     modifier = Modifier.weight(1f),
-                    color = MaterialTheme.colorScheme.primaryContainer
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
                 )
                 StatCard(
                     titulo = "Crisis",
                     valor = state.estadisticas.crisisEstaSemana.toString(),
                     subtitulo = state.estadisticas.tendenciaCrisis,
                     modifier = Modifier.weight(1f),
-                    color = MaterialTheme.colorScheme.errorContainer
+                    containerColor = MaterialTheme.colorScheme.errorContainer,
+                    contentColor = MaterialTheme.colorScheme.onErrorContainer
                 )
             }
 
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
+                shape = RoundedCornerShape(24.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.15f))
             ) {
-                GraficoComparativo(
-                    medicinas = state.estadisticas.medicinasEstaSemana,
-                    crisis = state.estadisticas.crisisEstaSemana,
-                    modifier = Modifier.padding(16.dp)
-                )
+                Column(modifier = Modifier.padding(20.dp)) {
+                    Text(
+                        text = "Actividad Semanal",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+                    GraficoComparativo(
+                        medicinas = state.estadisticas.medicinasEstaSemana,
+                        crisis = state.estadisticas.crisisEstaSemana,
+                        modifier = Modifier.fillMaxWidth().height(200.dp)
+                    )
+                }
             }
 
-            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+            HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.1f))
 
-            Text("Acciones de Gestión", style = MaterialTheme.typography.titleLarge)
+            Text(
+                text = "Gestión de Configuración",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onBackground
+            )
 
             Button(
                 onClick = { viewModel.exportarInforme() },
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary),
+                modifier = Modifier.fillMaxWidth().height(64.dp),
+                shape = RoundedCornerShape(20.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.secondary,
+                    contentColor = MaterialTheme.colorScheme.onSecondary
+                ),
                 enabled = !state.estaCargando
             ) {
                 Icon(Icons.Default.Share, contentDescription = null)
-                Spacer(Modifier.width(8.dp))
-                Text("EXPORTAR INFORME CLÍNICO")
+                Spacer(Modifier.width(12.dp))
+                Text("GENERAR INFORME CLÍNICO", fontWeight = FontWeight.Bold)
             }
 
-            OutlinedButton(
-                onClick = { viewModel.mostrarDialogoEmergencia(true) },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Icon(Icons.Default.Phone, null)
-                Spacer(Modifier.width(8.dp))
-                Text("EDITAR NÚMERO DE EMERGENCIA")
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                OutlinedButton(
+                    onClick = { viewModel.mostrarDialogoEmergencia(true) },
+                    modifier = Modifier.weight(1f).height(56.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.primary)
+                ) {
+                    Icon(Icons.Default.Phone, null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(8.dp))
+                    Text("TELÉFONO", style = MaterialTheme.typography.labelLarge)
+                }
+
+                OutlinedButton(
+                    onClick = { viewModel.mostrarDialogoPin(true) },
+                    modifier = Modifier.weight(1f).height(56.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.primary)
+                ) {
+                    Icon(Icons.Default.Lock, null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(8.dp))
+                    Text("PIN ADMIN", style = MaterialTheme.typography.labelLarge)
+                }
             }
 
-            OutlinedButton(
-                onClick = { viewModel.mostrarDialogoPin(true) },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Icon(Icons.Default.Lock, null)
-                Spacer(Modifier.width(8.dp))
-                Text("MODIFICAR PIN ADMIN")
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text("Zona de Peligro", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.error)
+            Spacer(modifier = Modifier.height(12.dp))
 
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.1f)),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.error)
+                shape = RoundedCornerShape(24.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.errorContainer
+                ),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.2f))
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text("Borrar Historial", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Column(modifier = Modifier.padding(20.dp)) {
                     Text(
-                        "Elimina permanentemente todos los registros guardados en la aplicación.",
-                        style = MaterialTheme.typography.bodySmall
+                        text = "Zona de Peligro",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = MaterialTheme.colorScheme.onErrorContainer
                     )
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = "El borrado de historial es irreversible. Los datos se eliminarán permanentemente de este dispositivo.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.8f),
+                        modifier = Modifier.padding(top = 4.dp, bottom = 16.dp)
+                    )
                     Button(
                         onClick = { viewModel.mostrarDialogoPurga(true) },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                        modifier = Modifier.fillMaxWidth().height(48.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.error,
+                            contentColor = MaterialTheme.colorScheme.onError
+                        )
                     ) {
-                        Icon(Icons.Default.DeleteForever, contentDescription = null)
-                        Spacer(Modifier.width(8.dp))
-                        Text("PURGAR BASE DE DATOS")
+                        Text("PURGAR TODOS LOS REGISTROS", style = MaterialTheme.typography.labelLarge)
                     }
                 }
             }
+
+            Spacer(modifier = Modifier.height(24.dp))
         }
     }
 }

@@ -42,7 +42,7 @@ fun ResumenDiarioWidget(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
             modifier = Modifier.padding(20.dp)
@@ -78,23 +78,23 @@ fun ResumenDiarioWidget(
 @Composable
 private fun IndicadorEstadistico(tipo: TipoEvento, cuenta: Int) {
     val (bgColor, contentColor) = when (tipo) {
-        TipoEvento.CRISIS_CONDUCTA -> Color(0xFFF9DCC4) to Color(0xFF780000)
-        TipoEvento.MEDICACION -> Color(0xFFE1EAF6) to Color(0xFF003049)
-        else -> Color(0xFFD8E2DC) to Color(0xFF1B4332)
+        TipoEvento.CRISIS_CONDUCTA -> MaterialTheme.colorScheme.errorContainer to MaterialTheme.colorScheme.onErrorContainer
+        TipoEvento.MEDICACION -> MaterialTheme.colorScheme.secondaryContainer to MaterialTheme.colorScheme.onSecondaryContainer
+        else -> MaterialTheme.colorScheme.primaryContainer to MaterialTheme.colorScheme.onPrimaryContainer
     }
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .clip(RoundedCornerShape(16.dp))
-            .background(bgColor.copy(alpha = 0.6f))
+            .background(bgColor)
             .padding(horizontal = 12.dp, vertical = 8.dp)
     ) {
         Box(
             modifier = Modifier
                 .size(32.dp)
                 .clip(CircleShape)
-                .background(Color.White.copy(alpha = 0.8f)),
+                .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.5f)),
             contentAlignment = Alignment.Center
         ) {
             Text(

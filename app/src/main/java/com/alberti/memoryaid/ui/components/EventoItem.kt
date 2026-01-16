@@ -31,15 +31,15 @@ fun EventoItem(
     alEditar: () -> Unit
 ) {
     val containerColor = when (evento.tipo) {
-        TipoEvento.CRISIS_CONDUCTA -> Color(0xFFF9DCC4)
-        TipoEvento.MEDICACION -> Color(0xFFE1EAF6)
-        else -> Color(0xFFD8E2DC)
+        TipoEvento.CRISIS_CONDUCTA -> MaterialTheme.colorScheme.errorContainer
+        TipoEvento.MEDICACION -> MaterialTheme.colorScheme.secondaryContainer
+        else -> MaterialTheme.colorScheme.primaryContainer
     }
 
     val contentColor = when (evento.tipo) {
-        TipoEvento.CRISIS_CONDUCTA -> Color(0xFF780000)
-        TipoEvento.MEDICACION -> Color(0xFF003049)
-        else -> Color(0xFF1B4332)
+        TipoEvento.CRISIS_CONDUCTA -> MaterialTheme.colorScheme.onErrorContainer
+        TipoEvento.MEDICACION -> MaterialTheme.colorScheme.onSecondaryContainer
+        else -> MaterialTheme.colorScheme.onPrimaryContainer
     }
 
     val icon = when (evento.tipo) {
@@ -55,7 +55,7 @@ fun EventoItem(
             .clickable { alEditar() },
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(containerColor = containerColor),
-        border = BorderStroke(1.dp, Color.Black.copy(alpha = 0.05f))
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.1f))
     ) {
         Row(
             modifier = Modifier
@@ -66,7 +66,7 @@ fun EventoItem(
             Surface(
                 modifier = Modifier.size(48.dp),
                 shape = CircleShape,
-                color = Color.White.copy(alpha = 0.4f)
+                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f)
             ) {
                 Icon(
                     imageVector = icon,

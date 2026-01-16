@@ -24,6 +24,7 @@ fun ConfirmacionBorradoDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDescartar,
+        containerColor = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(28.dp),
         icon = {
             Icon(
@@ -36,13 +37,15 @@ fun ConfirmacionBorradoDialog(
             Text(
                 text = "¿Confirmar eliminación?",
                 style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
             )
         },
         text = {
             Text(
                 text = "Estás eliminando el registro '$nombreEvento'. Esta acción es permanente.",
-                style = MaterialTheme.typography.bodyLarge
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         },
         confirmButton = {
@@ -51,7 +54,8 @@ fun ConfirmacionBorradoDialog(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.error
+                    containerColor = MaterialTheme.colorScheme.error,
+                    contentColor = MaterialTheme.colorScheme.onError
                 )
             ) {
                 Text("Eliminar Registro")
@@ -62,7 +66,7 @@ fun ConfirmacionBorradoDialog(
                 onClick = onDescartar,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Cancelar")
+                Text("Cancelar", color = MaterialTheme.colorScheme.secondary)
             }
         }
     )

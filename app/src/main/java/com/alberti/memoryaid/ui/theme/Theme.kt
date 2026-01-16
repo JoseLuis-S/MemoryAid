@@ -22,9 +22,13 @@ private val LightColorScheme = lightColorScheme(
     secondaryContainer = SlateSecondaryContainer,
     onSecondaryContainer = SlateOnSecondaryContainer,
     background = BackgroundLinen,
-    surface = SurfaceLinen,
+    surface = SurfaceWhite,
     onSurface = OnSurfaceDark,
-    outline = OutlineVariant
+    outline = OutlineGrey,
+    error = CrisisRed,
+    onError = Color.White,
+    errorContainer = CrisisContainer,
+    onErrorContainer = OnCrisisText
 )
 
 private val DarkColorScheme = darkColorScheme(
@@ -33,13 +37,13 @@ private val DarkColorScheme = darkColorScheme(
     primaryContainer = SagePrimaryContainerDark,
     onPrimaryContainer = SageOnPrimaryContainerDark,
     secondary = SlateSecondaryDark,
-    onSecondary = SlateOnSecondaryDark,
     background = BackgroundDark,
     surface = SurfaceDark,
     onSurface = OnSurfaceLight,
-    outline = OutlineDark,
-    error = Color(0xFFFFB4AB),
-    onError = Color(0xFF690005)
+    surfaceVariant = SurfaceVariantDark,
+    error = Color(0xFFF2B8B5),
+    errorContainer = CrisisContainerDark,
+    onErrorContainer = OnCrisisTextDark
 )
 
 @Composable

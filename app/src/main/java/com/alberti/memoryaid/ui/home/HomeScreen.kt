@@ -17,7 +17,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -75,7 +74,15 @@ fun HomeScreen(
         var numTemp by remember { mutableStateOf(contactoEmergencia ?: "") }
         AlertDialog(
             onDismissRequest = { viewModel.mostrarConfigContacto(false) },
-            title = { Text("Configurar Emergencia", style = MaterialTheme.typography.titleLarge) },
+            containerColor = MaterialTheme.colorScheme.surface,
+            title = {
+                Text(
+                    text = "Configurar Emergencia",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            },
             text = {
                 OutlinedTextField(
                     value = numTemp,
@@ -84,17 +91,24 @@ fun HomeScreen(
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                     singleLine = true,
                     shape = RoundedCornerShape(16.dp),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        focusedLabelColor = MaterialTheme.colorScheme.primary
+                    )
                 )
             },
             confirmButton = {
                 Button(
                     onClick = { viewModel.guardarContacto(numTemp) },
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) { Text("Guardar") }
             },
             dismissButton = {
-                TextButton(onClick = { viewModel.mostrarConfigContacto(false) }) { Text("Cancelar") }
+                TextButton(onClick = { viewModel.mostrarConfigContacto(false) }) {
+                    Text("Cancelar", color = MaterialTheme.colorScheme.secondary)
+                }
             }
         )
     }
@@ -102,10 +116,22 @@ fun HomeScreen(
     if (estado.mostrarDialogoPin) {
         AlertDialog(
             onDismissRequest = { viewModel.ocultarDialogoPin() },
-            title = { Text("Acceso Restringido", style = MaterialTheme.typography.titleLarge) },
+            containerColor = MaterialTheme.colorScheme.surface,
+            title = {
+                Text(
+                    text = "Acceso Restringido",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text("Introduce el PIN de administrador para continuar.", style = MaterialTheme.typography.bodyMedium)
+                    Text(
+                        text = "Introduce el PIN de administrador para continuar.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                     OutlinedTextField(
                         value = estado.pinInput,
                         onValueChange = { viewModel.alCambiarPin(it) },
@@ -115,32 +141,45 @@ fun HomeScreen(
                         isError = estado.errorPin != null,
                         singleLine = true,
                         shape = RoundedCornerShape(16.dp),
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            focusedLabelColor = MaterialTheme.colorScheme.primary
+                        )
                     )
                     estado.errorPin?.let {
-                        Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.labelSmall)
+                        Text(
+                            text = it,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.labelSmall
+                        )
                     }
                 }
             },
             confirmButton = {
                 Button(
                     onClick = { viewModel.validarPinAdmin() },
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) { Text("Entrar") }
             },
             dismissButton = {
-                TextButton(onClick = { viewModel.ocultarDialogoPin() }) { Text("Cancelar") }
+                TextButton(onClick = { viewModel.ocultarDialogoPin() }) {
+                    Text("Cancelar", color = MaterialTheme.colorScheme.secondary)
+                }
             }
         )
     }
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        "MemoryAid",
-                        style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+                        text = "MemoryAid",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.ExtraBold,
                         color = MaterialTheme.colorScheme.primary
                     )
                 },
@@ -148,17 +187,20 @@ fun HomeScreen(
                     Surface(
                         onClick = { viewModel.alClickAdmin() },
                         shape = RoundedCornerShape(12.dp),
-                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                        modifier = Modifier.padding(end = 8.dp)
+                        color = MaterialTheme.colorScheme.secondaryContainer,
+                        modifier = Modifier.padding(end = 12.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Default.Settings,
                             contentDescription = "Configuración Admin",
                             modifier = Modifier.padding(8.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            tint = MaterialTheme.colorScheme.onSecondaryContainer
                         )
                     }
-                }
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background
+                )
             )
         },
         floatingActionButton = {
@@ -167,7 +209,7 @@ fun HomeScreen(
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary,
                 shape = RoundedCornerShape(20.dp),
-                elevation = FloatingActionButtonDefaults.elevation(8.dp)
+                elevation = FloatingActionButtonDefaults.elevation(6.dp)
             ) {
                 Icon(Icons.Default.Add, contentDescription = "Agregar evento", modifier = Modifier.size(32.dp))
             }
@@ -178,7 +220,7 @@ fun HomeScreen(
                 .padding(padding)
                 .fillMaxSize(),
             contentPadding = PaddingValues(bottom = 88.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             item {
                 Card(
@@ -187,7 +229,7 @@ fun HomeScreen(
                         .padding(horizontal = 16.dp, vertical = 8.dp),
                     shape = RoundedCornerShape(28.dp),
                     colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.9f)
+                        containerColor = MaterialTheme.colorScheme.errorContainer
                     ),
                     onClick = {
                         if (contactoEmergencia.isNullOrBlank()) {
@@ -211,7 +253,7 @@ fun HomeScreen(
                     ) {
                         Surface(
                             shape = RoundedCornerShape(16.dp),
-                            color = Color.White.copy(alpha = 0.4f),
+                            color = MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.15f),
                             modifier = Modifier.size(48.dp)
                         ) {
                             Icon(
@@ -225,7 +267,8 @@ fun HomeScreen(
                         Column {
                             Text(
                                 text = if (contactoEmergencia.isNullOrBlank()) "Configurar Emergencia" else "LLAMADA DE EMERGENCIA",
-                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.ExtraBold),
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.ExtraBold,
                                 color = MaterialTheme.colorScheme.onErrorContainer
                             )
                             if (!contactoEmergencia.isNullOrBlank()) {
@@ -251,7 +294,7 @@ fun HomeScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp, vertical = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     BuscadorBar(
                         query = textoBusqueda,
@@ -273,7 +316,7 @@ fun HomeScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            "No se encontraron eventos",
+                            text = "No se encontraron eventos",
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.outline
                         )
@@ -281,7 +324,7 @@ fun HomeScreen(
                 }
             } else {
                 items(listaEventos) { evento ->
-                    Box(modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
+                    Box(modifier = Modifier.padding(horizontal = 16.dp, vertical = 2.dp)) {
                         EventoItem(
                             evento = evento,
                             alEliminar = { viewModel.mostrarConfirmacionBorrado(evento) },

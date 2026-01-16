@@ -2,41 +2,36 @@ package com.alberti.memoryaid.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Primary - Oceanic Sage (Salud y Calma)
-val SagePrimary = Color(0xFF2D6A4F)
+val SagePrimary = Color(0xFF00382D)
 val SageOnPrimary = Color(0xFFFFFFFF)
-val SagePrimaryContainer = Color(0xFFD8E2DC)
-val SageOnPrimaryContainer = Color(0xFF1B4332)
+val SagePrimaryContainer = Color(0xFFC7EDE0)
+val SageOnPrimaryContainer = Color(0xFF002119)
 
-// Secondary - Slate Blue (Confianza y Estabilidad)
-val SlateSecondary = Color(0xFF457B9D)
+val SlateSecondary = Color(0xFF3F4F4A)
 val SlateOnSecondary = Color(0xFFFFFFFF)
-val SlateSecondaryContainer = Color(0xFFE1EAF6)
-val SlateOnSecondaryContainer = Color(0xFF003049)
+val SlateSecondaryContainer = Color(0xFFD3E6DF)
+val SlateOnSecondaryContainer = Color(0xFF00201A)
 
-// Neutrals - Soft Linen (Accesibilidad AAA)
-val BackgroundLinen = Color(0xFFF8F9F1)
-val SurfaceLinen = Color(0xFFFFFFFF)
-val OnSurfaceDark = Color(0xFF191C1A)
-val OutlineVariant = Color(0xFFDBE5DD)
+val BackgroundLinen = Color(0xFFF7F9F4)
+val SurfaceWhite = Color(0xFFFFFFFF)
+val OnSurfaceDark = Color(0xFF191C1B)
+val OutlineGrey = Color(0xFF707974)
 
-// Functional - Crisis/Error (Alerta sin Estrés)
-val CrisisContainer = Color(0xFFF9DCC4)
-val OnCrisisText = Color(0xFF780000)
+val CrisisRed = Color(0xFFBA1A1A)
+val CrisisContainer = Color(0xFFFFDAD6)
+val OnCrisisText = Color(0xFF410002)
 
-// Dark Mode Variants
-val SagePrimaryDark = Color(0xFF82C2A1) // Sage más claro para contraste
-val SageOnPrimaryDark = Color(0xFF003923)
-val SagePrimaryContainerDark = Color(0xFF115238)
-val SageOnPrimaryContainerDark = Color(0xFFD8E2DC)
+val BackgroundDark = Color(0xFF0B0F0D)
+val SurfaceDark = Color(0xFF171B19)
+val SurfaceVariantDark = Color(0xFF2B312E)
 
-val SlateSecondaryDark = Color(0xFFA2D2FF)
-val SlateOnSecondaryDark = Color(0xFF00334E)
+val SagePrimaryDark = Color(0xFF86D5B1)
+val SageOnPrimaryDark = Color(0xFF003828)
+val SagePrimaryContainerDark = Color(0xFF00513B)
+val SageOnPrimaryContainerDark = Color(0xFFA1F2CC)
 
-val BackgroundDark = Color(0xFF191C1A) // Gris verdoso muy oscuro
-val SurfaceDark = Color(0xFF1E2320)
+val SlateSecondaryDark = Color(0xFFB1CCC2)
 val OnSurfaceLight = Color(0xFFE1E3DF)
-val OutlineDark = Color(0xFF3F4942)
 
-val CrisisContainerDark = Color(0xFF5A2D2D) // Rojo terracota oscuro
-val OnCrisisTextDark = Color(0xFFFFDAD4)
+val CrisisContainerDark = Color(0xFF93000A)
+val OnCrisisTextDark = Color(0xFFFFDAD6)

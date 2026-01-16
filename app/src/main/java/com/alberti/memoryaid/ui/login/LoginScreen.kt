@@ -47,13 +47,13 @@ fun LoginScreen(
                 Surface(
                     modifier = Modifier.size(120.dp),
                     shape = CircleShape,
-                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                    color = MaterialTheme.colorScheme.primaryContainer
                 ) {
                     Icon(
                         imageVector = Icons.Default.VolunteerActivism,
                         contentDescription = null,
                         modifier = Modifier.padding(24.dp),
-                        tint = MaterialTheme.colorScheme.primary
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                 }
 
@@ -65,13 +65,13 @@ fun LoginScreen(
                         fontWeight = FontWeight.Bold,
                         letterSpacing = (-1).sp
                     ),
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                    color = MaterialTheme.colorScheme.onBackground
                 )
 
                 Text(
                     text = "Cuidando a quienes cuidan",
                     style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
 
@@ -127,7 +127,7 @@ fun LoginScreen(
                 Text(
                     text = if (state.esPrimeraVezAdmin) "Configurar PIN Admin" else "PIN de Administrador",
                     style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             },
             text = {
@@ -137,7 +137,7 @@ fun LoginScreen(
                             "Cree un código de 4 dígitos para proteger las funciones de gestión."
                         else "Introduzca su código de acceso para continuar.",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(bottom = 20.dp)
                     )
                     OutlinedTextField(
@@ -152,7 +152,9 @@ fun LoginScreen(
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = MaterialTheme.colorScheme.primary,
-                            focusedLabelColor = MaterialTheme.colorScheme.primary
+                            focusedLabelColor = MaterialTheme.colorScheme.primary,
+                            errorBorderColor = MaterialTheme.colorScheme.error,
+                            errorLabelColor = MaterialTheme.colorScheme.error
                         )
                     )
                     if (state.errorPin != null) {
@@ -169,7 +171,10 @@ fun LoginScreen(
                 Button(
                     onClick = { viewModel.ejecutarAccionAdmin() },
                     shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    )
                 ) {
                     Text(if (state.esPrimeraVezAdmin) "Guardar y Entrar" else "Validar")
                 }

@@ -48,14 +48,14 @@ fun GraficoComparativo(
                 .fillMaxWidth()
                 .height(32.dp)
                 .clip(RoundedCornerShape(16.dp))
-                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
+                .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
         ) {
             if (medicinas > 0) {
                 Box(
                     modifier = Modifier
                         .fillMaxHeight()
                         .weight(pctMedicinas)
-                        .background(Color(0xFF457B9D))
+                        .background(MaterialTheme.colorScheme.secondary)
                 )
             }
             if (crisis > 0) {
@@ -63,7 +63,7 @@ fun GraficoComparativo(
                     modifier = Modifier
                         .fillMaxHeight()
                         .weight(pctCrisis)
-                        .background(Color(0xFFF9DCC4))
+                        .background(MaterialTheme.colorScheme.errorContainer)
                 )
             }
         }
@@ -75,12 +75,12 @@ fun GraficoComparativo(
             LeyendaItem(
                 label = "Medicinas",
                 cantidad = medicinas,
-                color = Color(0xFF457B9D)
+                color = MaterialTheme.colorScheme.secondary
             )
             LeyendaItem(
                 label = "Crisis",
                 cantidad = crisis,
-                color = Color(0xFFE5989B)
+                color = MaterialTheme.colorScheme.errorContainer
             )
         }
     }
