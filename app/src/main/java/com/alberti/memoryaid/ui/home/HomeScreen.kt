@@ -1,39 +1,26 @@
 package com.alberti.memoryaid.ui.home
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.alberti.memoryaid.ui.components.BuscadorBar
@@ -49,11 +36,21 @@ fun HomeScreen(
     alNavegarARegistro: () -> Unit,
     alNavegarAAdmin: () -> Unit = {}
 ) {
+    val context = LocalContext.current
     val estado by viewModel.uiState.collectAsStateWithLifecycle()
     val listaEventos by viewModel.eventos.collectAsStateWithLifecycle()
     val resumen by viewModel.resumenDiario.collectAsStateWithLifecycle()
     val textoBusqueda by viewModel.busqueda.collectAsStateWithLifecycle()
     val eventoABorrar by viewModel.eventoABorrar.collectAsStateWithLifecycle()
+    val contactoEmergencia by viewModel.contactoEmergencia.collectAsStateWithLifecycle()
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted && !contactoEmergencia.isNullOrBlank()) {
+            viewModel.realizarLlamadaDirecta(context, contactoEmergencia!!)
+        }
+    }
 
     LaunchedEffect(estado.navegarAAdmin) {
         if (estado.navegarAAdmin) {
@@ -67,6 +64,29 @@ fun HomeScreen(
             nombreEvento = evento.titulo,
             onConfirmar = { viewModel.confirmarBorrado() },
             onDescartar = { viewModel.cancelarBorrado() }
+        )
+    }
+
+    if (estado.mostrarDialogoConfigContacto) {
+        var numTemp by remember { mutableStateOf(contactoEmergencia ?: "") }
+        AlertDialog(
+            onDismissRequest = { viewModel.mostrarConfigContacto(false) },
+            title = { Text("Configurar Emergencia") },
+            text = {
+                OutlinedTextField(
+                    value = numTemp,
+                    onValueChange = { numTemp = it },
+                    label = { Text("Número de teléfono") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                    singleLine = true
+                )
+            },
+            confirmButton = {
+                Button(onClick = { viewModel.guardarContacto(numTemp) }) { Text("Guardar") }
+            },
+            dismissButton = {
+                TextButton(onClick = { viewModel.mostrarConfigContacto(false) }) { Text("Cancelar") }
+            }
         )
     }
 
@@ -113,10 +133,7 @@ fun HomeScreen(
                             tint = MaterialTheme.colorScheme.primary
                         )
                     }
-                },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                )
+                }
             )
         },
         floatingActionButton = {
@@ -130,6 +147,55 @@ fun HomeScreen(
                 .padding(padding)
                 .fillMaxSize()
         ) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.errorContainer
+                ),
+                onClick = {
+                    if (contactoEmergencia.isNullOrBlank()) {
+                        viewModel.mostrarConfigContacto(true)
+                    } else {
+                        val hasPerm = ContextCompat.checkSelfPermission(
+                            context, Manifest.permission.CALL_PHONE
+                        ) == PackageManager.PERMISSION_GRANTED
+
+                        if (hasPerm) {
+                            viewModel.realizarLlamadaDirecta(context, contactoEmergencia!!)
+                        } else {
+                            permissionLauncher.launch(Manifest.permission.CALL_PHONE)
+                        }
+                    }
+                }
+            ) {
+                Row(
+                    modifier = Modifier.padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Phone,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.error
+                    )
+                    Spacer(Modifier.width(12.dp))
+                    Column {
+                        Text(
+                            text = if (contactoEmergencia.isNullOrBlank()) "Configurar Emergencia" else "LLAMADA DE EMERGENCIA",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onErrorContainer
+                        )
+                        if (!contactoEmergencia.isNullOrBlank()) {
+                            Text(
+                                text = contactoEmergencia!!,
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+                    }
+                }
+            }
+
             ResumenDiarioWidget(resumen = resumen)
 
             BuscadorBar(

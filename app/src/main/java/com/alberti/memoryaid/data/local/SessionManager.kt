@@ -19,6 +19,7 @@ class SessionManager @Inject constructor(
 ) {
     private val Context.dataStore by preferencesDataStore(name = "settings")
     private val PIN_KEY = stringPreferencesKey("admin_pin")
+    private val CONTACTO_EMERGENCIA = stringPreferencesKey("contacto_emergencia")
 
     private val _rolActual = MutableStateFlow(UserRole.USER)
     val rolActual = _rolActual.asStateFlow()
@@ -39,6 +40,13 @@ class SessionManager @Inject constructor(
             _rolActual.value = UserRole.ADMIN
             true
         } else false
+    }
+
+    val contactoEmergencia: Flow<String?> = context.dataStore.data
+        .map { it[CONTACTO_EMERGENCIA] }
+
+    suspend fun guardarContactoEmergencia(numero: String) {
+        context.dataStore.edit { it[CONTACTO_EMERGENCIA] = numero }
     }
 
     fun setRole(role: UserRole) { _rolActual.value = role }

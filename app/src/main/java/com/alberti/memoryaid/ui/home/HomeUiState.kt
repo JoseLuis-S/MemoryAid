@@ -11,5 +11,6 @@ data class HomeUiState(
     val mostrarDialogoPin: Boolean = false,
     val pinInput: String = "",
     val errorPin: String? = null,
-    val navegarAAdmin: Boolean = false
+    val navegarAAdmin: Boolean = false,
+    val mostrarDialogoConfigContacto: Boolean = false
 )

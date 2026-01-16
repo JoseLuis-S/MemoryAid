@@ -1,5 +1,8 @@
 package com.alberti.memoryaid.ui.home
 
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.alberti.memoryaid.data.local.SessionManager
@@ -36,6 +39,12 @@ class HomeViewModel @Inject constructor(
 
     val role = sessionManager.rolActual
 
+    val contactoEmergencia = sessionManager.contactoEmergencia.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = null
+    )
+
     val resumenDiario = obtenerResumenDiarioUseCase(fecha = System.currentTimeMillis())
         .stateIn(
             scope = viewModelScope,
@@ -59,6 +68,25 @@ class HomeViewModel @Inject constructor(
     fun alCambiarFiltro(tipo: TipoEvento?) {
         _filtro.value = tipo
         _uiState.update { it.copy(filtroSeleccionado = tipo) }
+    }
+
+    fun guardarContacto(numero: String) {
+        viewModelScope.launch {
+            sessionManager.guardarContactoEmergencia(numero)
+            _uiState.update { it.copy(mostrarDialogoConfigContacto = false) }
+        }
+    }
+
+    fun mostrarConfigContacto(mostrar: Boolean) {
+        _uiState.update { it.copy(mostrarDialogoConfigContacto = mostrar) }
+    }
+
+    fun realizarLlamadaDirecta(context: Context, numero: String) {
+        val intent = Intent(Intent.ACTION_CALL).apply {
+            data = Uri.parse("tel:$numero")
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        }
+        context.startActivity(intent)
     }
 
     fun mostrarConfirmacionBorrado(evento: EventoMemoria) {
