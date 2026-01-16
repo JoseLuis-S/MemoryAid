@@ -1,5 +1,6 @@
 package com.alberti.memoryaid.ui.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,7 +23,8 @@ import com.alberti.memoryaid.domain.model.TipoEvento
 @Composable
 fun EventoItem(
     evento: EventoMemoria,
-    alEliminar: () -> Unit
+    alEliminar: () -> Unit,
+    alEditar: () -> Unit
 ) {
     val colorTipo = when (evento.tipo) {
         TipoEvento.CRISIS_CONDUCTA -> MaterialTheme.colorScheme.errorContainer
@@ -31,7 +33,9 @@ fun EventoItem(
     }
 
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { alEditar() },
         colors = CardDefaults.cardColors(containerColor = colorTipo)
     ) {
         Row(

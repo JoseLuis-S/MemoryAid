@@ -35,7 +35,10 @@ fun AppNavigation(
         composable<RutaHome> {
             HomeScreen(
                 alNavegarARegistro = {
-                    navController.navigate(RutaRegistro)
+                    navController.navigate(RutaRegistro())
+                },
+                alEditarEvento = { id ->
+                    navController.navigate(RutaRegistro(eventoId = id))
                 },
                 alNavegarAAdmin = {
                     navController.navigate(RutaAdmin)

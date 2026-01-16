@@ -34,6 +34,7 @@ import com.alberti.memoryaid.ui.components.ResumenDiarioWidget
 fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
     alNavegarARegistro: () -> Unit,
+    alEditarEvento: (Long) -> Unit,
     alNavegarAAdmin: () -> Unit = {}
 ) {
     val context = LocalContext.current
@@ -221,7 +222,8 @@ fun HomeScreen(
                     items(listaEventos) { evento ->
                         EventoItem(
                             evento = evento,
-                            alEliminar = { viewModel.mostrarConfirmacionBorrado(evento) }
+                            alEliminar = { viewModel.mostrarConfirmacionBorrado(evento) },
+                            alEditar = { alEditarEvento(evento.id ?: 0L) }
                         )
                     }
                 }

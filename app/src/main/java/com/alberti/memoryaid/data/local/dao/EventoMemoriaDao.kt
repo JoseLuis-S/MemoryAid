@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.alberti.memoryaid.data.local.entity.EventoMemoriaEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -18,6 +19,9 @@ interface EventoMemoriaDao {
 
     @Query("SELECT * FROM eventos_memoria WHERE fechaHora BETWEEN :inicio AND :fin ORDER BY fechaHora DESC")
     fun obtenerPorRango(inicio: Long, fin: Long): Flow<List<EventoMemoriaEntity>>
+
+    @Query("SELECT * FROM eventos_memoria WHERE id = :id")
+    suspend fun obtenerPorId(id: Long): EventoMemoriaEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertar(evento: EventoMemoriaEntity)
@@ -47,4 +51,7 @@ interface EventoMemoriaDao {
 
     @Query("DELETE FROM eventos_memoria")
     suspend fun borrarTodosLosEventos()
+
+    @Update
+    suspend fun actualizar(evento: EventoMemoriaEntity)
 }

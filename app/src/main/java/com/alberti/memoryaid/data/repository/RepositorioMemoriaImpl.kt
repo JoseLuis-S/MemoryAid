@@ -57,4 +57,12 @@ class RepositorioMemoriaImpl @Inject constructor (
     override suspend fun borrarTodo() {
         dao.borrarTodosLosEventos()
     }
+
+    override suspend fun actualizarEvento(evento: EventoMemoria) {
+        dao.actualizar(evento.toEntity())
+    }
+
+    override suspend fun obtenerEventoPorId(id: Long): EventoMemoria? {
+        return dao.obtenerPorId(id)?.toDomain()
+    }
 }

@@ -8,7 +8,7 @@ sealed interface Rutas {
     data object RutaHome : Rutas
 
     @Serializable
-    data object RutaRegistro : Rutas
+    data class RutaRegistro(val eventoId: Long? = null)
 
     @Serializable
     data object RutaLogin : Rutas

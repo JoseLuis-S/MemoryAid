@@ -14,4 +14,6 @@ interface RepositorioMemoria {
     suspend fun contarPorTipo(tipo: TipoEvento, desde: Long, hasta: Long = System.currentTimeMillis()): Int
     suspend fun contarTotal(desde: Long, hasta: Long = System.currentTimeMillis()): Int
     suspend fun borrarTodo()
+    suspend fun actualizarEvento(evento: EventoMemoria)
+    suspend fun obtenerEventoPorId(id: Long): EventoMemoria?
 }
