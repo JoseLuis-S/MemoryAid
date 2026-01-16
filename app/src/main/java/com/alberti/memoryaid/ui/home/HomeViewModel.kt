@@ -36,20 +36,11 @@ class HomeViewModel @Inject constructor(
 
     val role = sessionManager.rolActual
 
-    private fun getInicioDelDia(): Long {
-        return java.util.Calendar.getInstance().apply {
-            set(java.util.Calendar.HOUR_OF_DAY, 0)
-            set(java.util.Calendar.MINUTE, 0)
-            set(java.util.Calendar.SECOND, 0)
-            set(java.util.Calendar.MILLISECOND, 0)
-        }.timeInMillis
-    }
-
-    val resumenDiario = obtenerResumenDiarioUseCase(fecha = getInicioDelDia())
+    val resumenDiario = obtenerResumenDiarioUseCase(fecha = System.currentTimeMillis())
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyMap<TipoEvento, Int>()
+            initialValue = emptyMap()
         )
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -57,11 +48,9 @@ class HomeViewModel @Inject constructor(
         Pair(query, filtro)
     }.flatMapLatest { (query, filtro) ->
         obtenerEventosUseCase(filtro, query)
-    }.onStart { _uiState.update { it.copy(estaCargando = true) } }
-        .onEach { lista ->
-            _uiState.update { it.copy(eventos = lista, estaCargando = false) }
-        }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    }.onEach { lista ->
+        _uiState.update { it.copy(eventos = lista, estaCargando = false) }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     fun alCambiarBusqueda(nuevaBusqueda: String) {
         _busqueda.value = nuevaBusqueda

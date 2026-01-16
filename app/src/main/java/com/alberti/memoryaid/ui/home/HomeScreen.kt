@@ -50,6 +50,7 @@ fun HomeScreen(
     alNavegarAAdmin: () -> Unit = {}
 ) {
     val estado by viewModel.uiState.collectAsStateWithLifecycle()
+    val listaEventos by viewModel.eventos.collectAsStateWithLifecycle()
     val resumen by viewModel.resumenDiario.collectAsStateWithLifecycle()
     val textoBusqueda by viewModel.busqueda.collectAsStateWithLifecycle()
     val eventoABorrar by viewModel.eventoABorrar.collectAsStateWithLifecycle()
@@ -141,7 +142,7 @@ fun HomeScreen(
                 alSeleccionar = { viewModel.alCambiarFiltro(it) }
             )
 
-            if (estado.eventos.isEmpty() && !estado.estaCargando) {
+            if (listaEventos.isEmpty() && !estado.estaCargando) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text("No se encontraron eventos")
                 }
@@ -151,7 +152,7 @@ fun HomeScreen(
                     contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(estado.eventos) { evento ->
+                    items(listaEventos) { evento ->
                         EventoItem(
                             evento = evento,
                             alEliminar = { viewModel.mostrarConfirmacionBorrado(evento) }
