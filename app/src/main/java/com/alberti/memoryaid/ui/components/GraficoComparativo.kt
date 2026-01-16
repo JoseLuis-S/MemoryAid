@@ -21,8 +21,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-
 
 @Composable
 fun GraficoComparativo(
@@ -36,46 +36,76 @@ fun GraficoComparativo(
 
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
-            text = "Distribución Medicación vs Crisis",
-            style = MaterialTheme.typography.labelLarge,
-            modifier = Modifier.padding(bottom = 8.dp)
+            text = "DISTRIBUCIÓN SEMANAL",
+            style = MaterialTheme.typography.labelSmall,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(bottom = 12.dp)
         )
 
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(24.dp)
-                .clip(RoundedCornerShape(12.dp))
+                .height(32.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .weight(if (pctMedicinas > 0f) pctMedicinas else 0.001f)
-                    .background(MaterialTheme.colorScheme.primary)
-            )
-            Box(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .weight(if (pctCrisis > 0f) pctCrisis else 0.001f)
-                    .background(MaterialTheme.colorScheme.error)
-            )
+            if (medicinas > 0) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .weight(pctMedicinas)
+                        .background(Color(0xFF457B9D))
+                )
+            }
+            if (crisis > 0) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .weight(pctCrisis)
+                        .background(Color(0xFFF9DCC4))
+                )
+            }
         }
 
         Row(
-            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
+            modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            LeyendaItem(label = "Medicinas ($medicinas)", color = MaterialTheme.colorScheme.primary)
-            LeyendaItem(label = "Crisis ($crisis)", color = MaterialTheme.colorScheme.error)
+            LeyendaItem(
+                label = "Medicinas",
+                cantidad = medicinas,
+                color = Color(0xFF457B9D)
+            )
+            LeyendaItem(
+                label = "Crisis",
+                cantidad = crisis,
+                color = Color(0xFFE5989B)
+            )
         }
     }
 }
 
 @Composable
-fun LeyendaItem(label: String, color: Color) {
+fun LeyendaItem(label: String, cantidad: Int, color: Color) {
     Row(verticalAlignment = Alignment.CenterVertically) {
-        Box(modifier = Modifier.size(12.dp).clip(CircleShape).background(color))
-        Spacer(Modifier.width(4.dp))
-        Text(label, style = MaterialTheme.typography.bodySmall)
+        Box(
+            modifier = Modifier
+                .size(8.dp)
+                .clip(CircleShape)
+                .background(color)
+        )
+        Spacer(Modifier.width(6.dp))
+        Text(
+            text = "$label: ",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = cantidad.toString(),
+            style = MaterialTheme.typography.bodySmall,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurface
+        )
     }
 }

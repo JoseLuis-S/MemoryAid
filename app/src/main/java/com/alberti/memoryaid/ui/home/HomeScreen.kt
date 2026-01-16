@@ -7,6 +7,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -16,7 +17,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
@@ -72,18 +75,23 @@ fun HomeScreen(
         var numTemp by remember { mutableStateOf(contactoEmergencia ?: "") }
         AlertDialog(
             onDismissRequest = { viewModel.mostrarConfigContacto(false) },
-            title = { Text("Configurar Emergencia") },
+            title = { Text("Configurar Emergencia", style = MaterialTheme.typography.titleLarge) },
             text = {
                 OutlinedTextField(
                     value = numTemp,
                     onValueChange = { numTemp = it },
                     label = { Text("Número de teléfono") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-                    singleLine = true
+                    singleLine = true,
+                    shape = RoundedCornerShape(16.dp),
+                    modifier = Modifier.fillMaxWidth()
                 )
             },
             confirmButton = {
-                Button(onClick = { viewModel.guardarContacto(numTemp) }) { Text("Guardar") }
+                Button(
+                    onClick = { viewModel.guardarContacto(numTemp) },
+                    shape = RoundedCornerShape(12.dp)
+                ) { Text("Guardar") }
             },
             dismissButton = {
                 TextButton(onClick = { viewModel.mostrarConfigContacto(false) }) { Text("Cancelar") }
@@ -94,10 +102,10 @@ fun HomeScreen(
     if (estado.mostrarDialogoPin) {
         AlertDialog(
             onDismissRequest = { viewModel.ocultarDialogoPin() },
-            title = { Text("Acceso Restringido") },
+            title = { Text("Acceso Restringido", style = MaterialTheme.typography.titleLarge) },
             text = {
-                Column {
-                    Text("Introduce el PIN de administrador para continuar.")
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text("Introduce el PIN de administrador para continuar.", style = MaterialTheme.typography.bodyMedium)
                     OutlinedTextField(
                         value = estado.pinInput,
                         onValueChange = { viewModel.alCambiarPin(it) },
@@ -106,15 +114,19 @@ fun HomeScreen(
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         isError = estado.errorPin != null,
                         singleLine = true,
-                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
+                        shape = RoundedCornerShape(16.dp),
+                        modifier = Modifier.fillMaxWidth()
                     )
                     estado.errorPin?.let {
-                        Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+                        Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.labelSmall)
                     }
                 }
             },
             confirmButton = {
-                Button(onClick = { viewModel.validarPinAdmin() }) { Text("Entrar") }
+                Button(
+                    onClick = { viewModel.validarPinAdmin() },
+                    shape = RoundedCornerShape(12.dp)
+                ) { Text("Entrar") }
             },
             dismissButton = {
                 TextButton(onClick = { viewModel.ocultarDialogoPin() }) { Text("Cancelar") }
@@ -125,101 +137,151 @@ fun HomeScreen(
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("MemoryAid") },
+                title = {
+                    Text(
+                        "MemoryAid",
+                        style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                },
                 actions = {
-                    IconButton(onClick = { viewModel.alClickAdmin() }) {
+                    Surface(
+                        onClick = { viewModel.alClickAdmin() },
+                        shape = RoundedCornerShape(12.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                        modifier = Modifier.padding(end = 8.dp)
+                    ) {
                         Icon(
                             imageVector = Icons.Default.Settings,
                             contentDescription = "Configuración Admin",
-                            tint = MaterialTheme.colorScheme.primary
+                            modifier = Modifier.padding(8.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = alNavegarARegistro) {
-                Icon(Icons.Default.Add, contentDescription = "Agregar evento")
+            FloatingActionButton(
+                onClick = alNavegarARegistro,
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+                shape = RoundedCornerShape(20.dp),
+                elevation = FloatingActionButtonDefaults.elevation(8.dp)
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Agregar evento", modifier = Modifier.size(32.dp))
             }
         }
     ) { padding ->
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .padding(padding)
-                .fillMaxSize()
+                .fillMaxSize(),
+            contentPadding = PaddingValues(bottom = 88.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.errorContainer
-                ),
-                onClick = {
-                    if (contactoEmergencia.isNullOrBlank()) {
-                        viewModel.mostrarConfigContacto(true)
-                    } else {
-                        val hasPerm = ContextCompat.checkSelfPermission(
-                            context, Manifest.permission.CALL_PHONE
-                        ) == PackageManager.PERMISSION_GRANTED
-
-                        if (hasPerm) {
-                            viewModel.realizarLlamadaDirecta(context, contactoEmergencia!!)
+            item {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    shape = RoundedCornerShape(28.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.9f)
+                    ),
+                    onClick = {
+                        if (contactoEmergencia.isNullOrBlank()) {
+                            viewModel.mostrarConfigContacto(true)
                         } else {
-                            permissionLauncher.launch(Manifest.permission.CALL_PHONE)
+                            val hasPerm = ContextCompat.checkSelfPermission(
+                                context, Manifest.permission.CALL_PHONE
+                            ) == PackageManager.PERMISSION_GRANTED
+
+                            if (hasPerm) {
+                                viewModel.realizarLlamadaDirecta(context, contactoEmergencia!!)
+                            } else {
+                                permissionLauncher.launch(Manifest.permission.CALL_PHONE)
+                            }
                         }
                     }
-                }
-            ) {
-                Row(
-                    modifier = Modifier.padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Phone,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.error
-                    )
-                    Spacer(Modifier.width(12.dp))
-                    Column {
-                        Text(
-                            text = if (contactoEmergencia.isNullOrBlank()) "Configurar Emergencia" else "LLAMADA DE EMERGENCIA",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onErrorContainer
-                        )
-                        if (!contactoEmergencia.isNullOrBlank()) {
-                            Text(
-                                text = contactoEmergencia!!,
-                                style = MaterialTheme.typography.bodySmall
+                    Row(
+                        modifier = Modifier.padding(20.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Surface(
+                            shape = RoundedCornerShape(16.dp),
+                            color = Color.White.copy(alpha = 0.4f),
+                            modifier = Modifier.size(48.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Phone,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onErrorContainer,
+                                modifier = Modifier.padding(12.dp)
                             )
+                        }
+                        Spacer(Modifier.width(16.dp))
+                        Column {
+                            Text(
+                                text = if (contactoEmergencia.isNullOrBlank()) "Configurar Emergencia" else "LLAMADA DE EMERGENCIA",
+                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.ExtraBold),
+                                color = MaterialTheme.colorScheme.onErrorContainer
+                            )
+                            if (!contactoEmergencia.isNullOrBlank()) {
+                                Text(
+                                    text = contactoEmergencia!!,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.8f)
+                                )
+                            }
                         }
                     }
                 }
             }
 
-            ResumenDiarioWidget(resumen = resumen)
-
-            BuscadorBar(
-                query = textoBusqueda,
-                alCambiarQuery = { viewModel.alCambiarBusqueda(it) }
-            )
-
-            FiltrosSeccion(
-                seleccionado = estado.filtroSeleccionado,
-                alSeleccionar = { viewModel.alCambiarFiltro(it) }
-            )
-
-            if (listaEventos.isEmpty() && !estado.estaCargando) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("No se encontraron eventos")
+            item {
+                Box(modifier = Modifier.padding(horizontal = 16.dp)) {
+                    ResumenDiarioWidget(resumen = resumen)
                 }
-            } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(16.dp),
+            }
+
+            item {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(listaEventos) { evento ->
+                    BuscadorBar(
+                        query = textoBusqueda,
+                        alCambiarQuery = { viewModel.alCambiarBusqueda(it) }
+                    )
+                    FiltrosSeccion(
+                        seleccionado = estado.filtroSeleccionado,
+                        alSeleccionar = { viewModel.alCambiarFiltro(it) }
+                    )
+                }
+            }
+
+            if (listaEventos.isEmpty() && !estado.estaCargando) {
+                item {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 64.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            "No se encontraron eventos",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.outline
+                        )
+                    }
+                }
+            } else {
+                items(listaEventos) { evento ->
+                    Box(modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
                         EventoItem(
                             evento = evento,
                             alEliminar = { viewModel.mostrarConfirmacionBorrado(evento) },
