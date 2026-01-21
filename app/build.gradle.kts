@@ -59,6 +59,7 @@ dependencies {
     implementation(libs.androidx.hilt.work)
     implementation(libs.firebase.components)
     implementation(libs.androidx.room.ktx)
+    implementation(libs.lottie.compose)
 
     // Unit Testing
     testImplementation(libs.junit)
