@@ -14,6 +14,7 @@ import com.alberti.memoryaid.navigation.Rutas.RutaRegistro
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import jakarta.inject.Inject
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -144,10 +145,11 @@ class RegistroViewModel @Inject constructor(
 
             resultado.onSuccess { idRetornado ->
                 val idFinal = if (esEdicion) idExistente else (idRetornado as? Long)
-
                 idFinal?.let { gestionarNotificacion(it) }
 
-                _state.update { it.copy(estaGuardando = false, registroExitoso = true) }
+                _state.update { it.copy(estaGuardando = false, mostrarAnimacionExito = true) }
+                delay(2000)
+                _state.update { it.copy(registroExitoso = true) }
             }.onFailure { e ->
                 _state.update { it.copy(estaGuardando = false, error = e.message) }
             }
