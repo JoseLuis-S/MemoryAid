@@ -21,12 +21,25 @@ import com.alberti.memoryaid.R
 import com.airbnb.lottie.compose.*
 
 @Composable
-fun SuccessOverlay() {
+fun EventoRegistrado() {
     val context = LocalContext.current
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.success_check))
 
     LaunchedEffect(Unit) {
-        ejecutarVibracionExito(context)
+        val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val vibratorManager = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+            vibratorManager.defaultVibrator
+        } else {
+            @Suppress("DEPRECATION")
+            context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            vibrator.vibrate(VibrationEffect.createWaveform(longArrayOf(0, 50, 70, 50), -1))
+        } else {
+            @Suppress("DEPRECATION")
+            vibrator.vibrate(100)
+        }
     }
 
     Box(
@@ -43,7 +56,8 @@ fun SuccessOverlay() {
             )
             Text(
                 text = "Registro guardado",
-                style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Black),
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Black,
                 color = MaterialTheme.colorScheme.primary
             )
             Spacer(Modifier.height(8.dp))
@@ -53,23 +67,5 @@ fun SuccessOverlay() {
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
-    }
-}
-
-private fun ejecutarVibracionExito(context: Context) {
-    val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        val vibratorManager = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
-        vibratorManager.defaultVibrator
-    } else {
-        @Suppress("DEPRECATION")
-        context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-    }
-
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        val efecto = VibrationEffect.createWaveform(longArrayOf(0, 50, 70, 50), -1)
-        vibrator.vibrate(efecto)
-    } else {
-        @Suppress("DEPRECATION")
-        vibrator.vibrate(100)
     }
 }
