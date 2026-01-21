@@ -10,7 +10,10 @@ fun EventoMemoriaEntity.toDomain(): EventoMemoria {
         titulo = titulo,
         descripcion = descripcion,
         fechaHora = fechaHora,
-        tipo = TipoEvento.valueOf(tipo)
+        tipo = TipoEvento.valueOf(tipo),
+        recordatorioActivo = recordatorioActivo,
+        fechaRecordatorio = fechaRecordatorio,
+        frecuenciaHoras = frecuenciaHoras
     )
 }
 
@@ -20,6 +23,9 @@ fun EventoMemoria.toEntity(): EventoMemoriaEntity {
         titulo = titulo,
         descripcion = descripcion,
         fechaHora = fechaHora,
-        tipo = tipo?.name ?: TipoEvento.NOTAS_GENERALES.name
+        tipo = tipo?.name ?: TipoEvento.NOTAS_GENERALES.name,
+        recordatorioActivo = recordatorioActivo,
+        fechaRecordatorio = fechaRecordatorio,
+        frecuenciaHoras = frecuenciaHoras
     )
 }

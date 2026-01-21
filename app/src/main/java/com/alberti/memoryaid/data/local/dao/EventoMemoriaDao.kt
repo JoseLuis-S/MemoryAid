@@ -24,7 +24,7 @@ interface EventoMemoriaDao {
     suspend fun obtenerPorId(id: Long): EventoMemoriaEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertar(evento: EventoMemoriaEntity)
+    suspend fun insertar(evento: EventoMemoriaEntity): Long
 
     @Delete
     suspend fun eliminar(evento: EventoMemoriaEntity)

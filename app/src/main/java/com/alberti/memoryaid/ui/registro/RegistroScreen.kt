@@ -1,5 +1,6 @@
 package com.alberti.memoryaid.ui.registro
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -7,11 +8,12 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Alarm
+import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -22,6 +24,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.alberti.memoryaid.ui.components.FiltrosSeccion
+import java.text.SimpleDateFormat
+import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,6 +39,39 @@ fun RegistroScreen(
         if (estado.registroExitoso) onVolver()
     }
 
+    if (estado.mostrarDatePicker) {
+        val datePickerState = rememberDatePickerState()
+        DatePickerDialog(
+            onDismissRequest = { viewModel.toggleDatePicker(false) },
+            confirmButton = {
+                TextButton(onClick = { viewModel.onDateSelected(datePickerState.selectedDateMillis) }) {
+                    Text("SIGUIENTE")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { viewModel.toggleDatePicker(false) }) { Text("CANCELAR") }
+            }
+        ) {
+            DatePicker(state = datePickerState)
+        }
+    }
+
+    if (estado.mostrarTimePicker) {
+        val timePickerState = rememberTimePickerState()
+        AlertDialog(
+            onDismissRequest = { viewModel.toggleTimePicker(false) },
+            confirmButton = {
+                TextButton(onClick = { viewModel.onTimeSelected(timePickerState.hour, timePickerState.minute) }) {
+                    Text("CONFIRMAR")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { viewModel.toggleTimePicker(false) }) { Text("CANCELAR") }
+            },
+            text = { TimePicker(state = timePickerState) }
+        )
+    }
+
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
@@ -43,22 +80,15 @@ fun RegistroScreen(
                     Text(
                         text = if (estado.esEdicion) "Editar Registro" else "Nuevo Registro",
                         style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.ExtraBold,
-                        color = MaterialTheme.colorScheme.onBackground
+                        fontWeight = FontWeight.ExtraBold
                     )
                 },
                 navigationIcon = {
                     IconButton(onClick = onVolver) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Volver",
-                            tint = MaterialTheme.colorScheme.primary
-                        )
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Volver", tint = MaterialTheme.colorScheme.primary)
                     }
                 },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background
-                )
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
         }
     ) { padding ->
@@ -71,143 +101,106 @@ fun RegistroScreen(
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text(
-                    text = "Detalles del evento",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.secondary,
-                    fontWeight = FontWeight.Bold
-                )
-
+                Text("Detalles del evento", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.secondary, fontWeight = FontWeight.Bold)
                 OutlinedTextField(
                     value = estado.titulo,
                     onValueChange = viewModel::onTituloChanged,
                     label = { Text("Título de la actividad") },
-                    placeholder = { Text("Ej: Medicación de la mañana") },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
                     isError = estado.error != null,
                     singleLine = true,
-                    keyboardOptions = KeyboardOptions(
-                        capitalization = KeyboardCapitalization.Sentences,
-                        imeAction = ImeAction.Next
-                    ),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                        focusedLabelColor = MaterialTheme.colorScheme.primary,
-                        cursorColor = MaterialTheme.colorScheme.primary
-                    )
+                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences, imeAction = ImeAction.Next)
                 )
-
                 OutlinedTextField(
                     value = estado.descripcion,
                     onValueChange = viewModel::onDescripcionChanged,
                     label = { Text("Notas adicionales") },
-                    placeholder = { Text("Describe brevemente lo ocurrido...") },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
-                    minLines = 4,
-                    maxLines = 6,
-                    keyboardOptions = KeyboardOptions(
-                        capitalization = KeyboardCapitalization.Sentences
-                    ),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                        focusedLabelColor = MaterialTheme.colorScheme.primary,
-                        cursorColor = MaterialTheme.colorScheme.primary
-                    )
+                    minLines = 3,
+                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
                 )
+            }
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(24.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.3f)),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.1f))
+            ) {
+                Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.NotificationsActive, null, tint = MaterialTheme.colorScheme.primary)
+                            Spacer(Modifier.width(12.dp))
+                            Text("Programar Alarma", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        }
+                        Switch(checked = estado.recordatorioActivo, onCheckedChange = viewModel::onRecordatorioToggled)
+                    }
+
+                    if (estado.recordatorioActivo) {
+                        OutlinedButton(
+                            onClick = { viewModel.toggleDatePicker(true) },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Icon(Icons.Default.Event, null)
+                            Spacer(Modifier.width(8.dp))
+                            Text(if (estado.fechaRecordatorio == null) "Configurar fecha y hora" else SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date(
+                                estado.fechaRecordatorio!!
+                            )))
+                        }
+
+                        Column {
+                            Text("Frecuencia del aviso", style = MaterialTheme.typography.labelMedium)
+                            Slider(
+                                value = estado.frecuenciaHoras.toFloat(),
+                                onValueChange = { viewModel.onFrecuenciaChanged(it.toInt()) },
+                                valueRange = 0f..24f,
+                                steps = 24
+                            )
+                            Text(
+                                text = if (estado.frecuenciaHoras == 0) "Aviso único" else "Repetir cada ${estado.frecuenciaHoras} horas",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+                }
             }
 
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = Icons.Default.Info,
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp),
-                        tint = MaterialTheme.colorScheme.primary
-                    )
+                    Icon(Icons.Default.Info, null, modifier = Modifier.size(20.dp), tint = MaterialTheme.colorScheme.primary)
                     Spacer(Modifier.width(8.dp))
-                    Text(
-                        text = "Categoría",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
+                    Text("Categoría", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                 }
-
                 Surface(
                     color = MaterialTheme.colorScheme.surface,
                     shape = RoundedCornerShape(24.dp),
                     tonalElevation = 2.dp,
-                    border = androidx.compose.foundation.BorderStroke(
-                        width = 1.dp,
-                        color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
-                    )
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
                 ) {
                     Box(modifier = Modifier.padding(12.dp)) {
-                        FiltrosSeccion(
-                            seleccionado = estado.tipo,
-                            alSeleccionar = viewModel::onTipoChanged
-                        )
+                        FiltrosSeccion(seleccionado = estado.tipo, alSeleccionar = viewModel::onTipoChanged)
                     }
                 }
             }
-
-            if (estado.error != null) {
-                Card(
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.errorContainer
-                    ),
-                    shape = RoundedCornerShape(16.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Row(
-                        modifier = Modifier.padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = estado.error!!,
-                            color = MaterialTheme.colorScheme.onErrorContainer,
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.weight(1f))
 
             Button(
                 onClick = viewModel::guardarEvento,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(64.dp),
+                modifier = Modifier.fillMaxWidth().height(64.dp),
                 shape = RoundedCornerShape(20.dp),
-                enabled = !estado.estaGuardando && estado.titulo.isNotBlank(),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
-                    disabledContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
-                ),
-                elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp)
+                enabled = !estado.estaGuardando && estado.titulo.isNotBlank()
             ) {
                 if (estado.estaGuardando) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(24.dp),
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        strokeWidth = 3.dp
-                    )
+                    CircularProgressIndicator(modifier = Modifier.size(24.dp), color = MaterialTheme.colorScheme.onPrimary)
                 } else {
-                    Text(
-                        text = if (estado.esEdicion) "ACTUALIZAR DATOS" else "GUARDAR REGISTRO",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.ExtraBold,
-                        letterSpacing = 1.sp
-                    )
+                    Text(if (estado.esEdicion) "ACTUALIZAR" else "GUARDAR", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.ExtraBold)
                 }
             }
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }

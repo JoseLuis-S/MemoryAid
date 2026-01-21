@@ -7,6 +7,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -22,6 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -74,10 +76,11 @@ fun HomeScreen(
         var numTemp by remember { mutableStateOf(contactoEmergencia ?: "") }
         AlertDialog(
             onDismissRequest = { viewModel.mostrarConfigContacto(false) },
+            shape = RoundedCornerShape(28.dp),
             containerColor = MaterialTheme.colorScheme.surface,
             title = {
                 Text(
-                    text = "Configurar Emergencia",
+                    text = "Contacto de Auxilio",
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
@@ -116,10 +119,11 @@ fun HomeScreen(
     if (estado.mostrarDialogoPin) {
         AlertDialog(
             onDismissRequest = { viewModel.ocultarDialogoPin() },
+            shape = RoundedCornerShape(28.dp),
             containerColor = MaterialTheme.colorScheme.surface,
             title = {
                 Text(
-                    text = "Acceso Restringido",
+                    text = "Área de Gestión",
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
@@ -128,14 +132,14 @@ fun HomeScreen(
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Text(
-                        text = "Introduce el PIN de administrador para continuar.",
+                        text = "Introduce el PIN de seguridad para acceder a las estadísticas.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     OutlinedTextField(
                         value = estado.pinInput,
                         onValueChange = { viewModel.alCambiarPin(it) },
-                        label = { Text("PIN") },
+                        label = { Text("PIN de Acceso") },
                         visualTransformation = PasswordVisualTransformation(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         isError = estado.errorPin != null,
@@ -161,7 +165,7 @@ fun HomeScreen(
                     onClick = { viewModel.validarPinAdmin() },
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-                ) { Text("Entrar") }
+                ) { Text("Validar") }
             },
             dismissButton = {
                 TextButton(onClick = { viewModel.ocultarDialogoPin() }) {
@@ -178,24 +182,30 @@ fun HomeScreen(
                 title = {
                     Text(
                         text = "MemoryAid",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.ExtraBold,
+                        style = MaterialTheme.typography.titleLarge.copy(
+                            fontWeight = FontWeight.ExtraBold,
+                            letterSpacing = (-0.5).sp
+                        ),
                         color = MaterialTheme.colorScheme.primary
                     )
                 },
                 actions = {
-                    Surface(
+                    IconButton(
                         onClick = { viewModel.alClickAdmin() },
-                        shape = RoundedCornerShape(12.dp),
-                        color = MaterialTheme.colorScheme.secondaryContainer,
-                        modifier = Modifier.padding(end = 12.dp)
+                        modifier = Modifier.padding(end = 8.dp)
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Settings,
-                            contentDescription = "Configuración Admin",
-                            modifier = Modifier.padding(8.dp),
-                            tint = MaterialTheme.colorScheme.onSecondaryContainer
-                        )
+                        Surface(
+                            shape = CircleShape,
+                            color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.6f),
+                            modifier = Modifier.size(40.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Settings,
+                                contentDescription = "Gestión",
+                                modifier = Modifier.padding(8.dp),
+                                tint = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -204,14 +214,13 @@ fun HomeScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
+            LargeFloatingActionButton(
                 onClick = alNavegarARegistro,
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary,
-                shape = RoundedCornerShape(20.dp),
-                elevation = FloatingActionButtonDefaults.elevation(6.dp)
+                shape = RoundedCornerShape(24.dp)
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Agregar evento", modifier = Modifier.size(32.dp))
+                Icon(Icons.Default.Add, "Nuevo Registro", modifier = Modifier.size(36.dp))
             }
         }
     ) { padding ->
@@ -219,15 +228,15 @@ fun HomeScreen(
             modifier = Modifier
                 .padding(padding)
                 .fillMaxSize(),
-            contentPadding = PaddingValues(bottom = 88.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            contentPadding = PaddingValues(bottom = 100.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             item {
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    shape = RoundedCornerShape(28.dp),
+                        .padding(horizontal = 20.dp, vertical = 8.dp),
+                    shape = RoundedCornerShape(24.dp),
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.errorContainer
                     ),
@@ -248,43 +257,41 @@ fun HomeScreen(
                     }
                 ) {
                     Row(
-                        modifier = Modifier.padding(20.dp),
+                        modifier = Modifier.padding(16.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Surface(
-                            shape = RoundedCornerShape(16.dp),
-                            color = MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.15f),
-                            modifier = Modifier.size(48.dp)
+                            shape = RoundedCornerShape(12.dp),
+                            color = MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.1f),
+                            modifier = Modifier.size(56.dp)
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Phone,
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.onErrorContainer,
-                                modifier = Modifier.padding(12.dp)
+                                modifier = Modifier.padding(16.dp)
                             )
                         }
                         Spacer(Modifier.width(16.dp))
-                        Column {
+                        Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = if (contactoEmergencia.isNullOrBlank()) "Configurar Emergencia" else "LLAMADA DE EMERGENCIA",
+                                text = if (contactoEmergencia.isNullOrBlank()) "Configurar Auxilio" else "AVISO DE EMERGENCIA",
                                 style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.ExtraBold,
+                                fontWeight = FontWeight.Black,
                                 color = MaterialTheme.colorScheme.onErrorContainer
                             )
-                            if (!contactoEmergencia.isNullOrBlank()) {
-                                Text(
-                                    text = contactoEmergencia!!,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.8f)
-                                )
-                            }
+                            Text(
+                                text = if (contactoEmergencia.isNullOrBlank()) "Añade un número de contacto" else contactoEmergencia!!,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.7f)
+                            )
                         }
                     }
                 }
             }
 
             item {
-                Box(modifier = Modifier.padding(horizontal = 16.dp)) {
+                Box(modifier = Modifier.padding(horizontal = 20.dp)) {
                     ResumenDiarioWidget(resumen = resumen)
                 }
             }
@@ -293,8 +300,8 @@ fun HomeScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                        .padding(horizontal = 20.dp, vertical = 4.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     BuscadorBar(
                         query = textoBusqueda,
@@ -312,19 +319,19 @@ fun HomeScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 64.dp),
+                            .padding(top = 80.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "No se encontraron eventos",
+                            text = "No hay registros disponibles",
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.outline
                         )
                     }
                 }
             } else {
-                items(listaEventos) { evento ->
-                    Box(modifier = Modifier.padding(horizontal = 16.dp, vertical = 2.dp)) {
+                items(listaEventos, key = { it.id ?: 0L }) { evento ->
+                    Box(modifier = Modifier.padding(horizontal = 20.dp, vertical = 2.dp)) {
                         EventoItem(
                             evento = evento,
                             alEliminar = { viewModel.mostrarConfirmacionBorrado(evento) },

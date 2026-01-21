@@ -9,5 +9,8 @@ data class EventoMemoriaEntity(
     val titulo: String,
     val descripcion: String,
     val fechaHora: Long,
-    val tipo: String
+    val tipo: String,
+    val recordatorioActivo: Boolean,
+    val fechaRecordatorio: Long?,
+    val frecuenciaHoras: Int
 )

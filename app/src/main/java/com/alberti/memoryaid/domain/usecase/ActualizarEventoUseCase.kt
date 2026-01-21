@@ -13,7 +13,10 @@ class ActualizarEventoUseCase @Inject constructor(
         titulo: String,
         descripcion: String,
         fechaHora: Long,
-        tipo: TipoEvento?
+        tipo: TipoEvento?,
+        recordatorioActivo: Boolean,
+        fechaRecordatorio: Long?,
+        frecuenciaHoras: Int
     ): Result<Unit> {
         if (titulo.isBlank()) return Result.failure(Exception("El título es obligatorio"))
 
@@ -22,7 +25,10 @@ class ActualizarEventoUseCase @Inject constructor(
             titulo = titulo,
             descripcion = descripcion,
             fechaHora = fechaHora,
-            tipo = tipo
+            tipo = tipo,
+            recordatorioActivo = recordatorioActivo,
+            fechaRecordatorio = fechaRecordatorio,
+            frecuenciaHoras = frecuenciaHoras
         )
 
         return try {

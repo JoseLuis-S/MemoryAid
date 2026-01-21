@@ -6,6 +6,7 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.alberti.memoryaid.data.local.SessionManager
+import com.alberti.memoryaid.data.worker.NotificacionScheduler
 import com.alberti.memoryaid.domain.model.EventoMemoria
 import com.alberti.memoryaid.domain.model.TipoEvento
 import com.alberti.memoryaid.domain.model.UserRole
@@ -13,6 +14,7 @@ import com.alberti.memoryaid.domain.usecase.EliminarEventoUseCase
 import com.alberti.memoryaid.domain.usecase.ObtenerEventosUseCase
 import com.alberti.memoryaid.domain.usecase.ObtenerResumenDiarioUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import jakarta.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
@@ -23,7 +25,8 @@ class HomeViewModel @Inject constructor(
     private val obtenerEventosUseCase: ObtenerEventosUseCase,
     private val eliminarEventoUseCase: EliminarEventoUseCase,
     private val obtenerResumenDiarioUseCase: ObtenerResumenDiarioUseCase,
-    private val sessionManager: SessionManager
+    private val sessionManager: SessionManager,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
@@ -99,8 +102,9 @@ class HomeViewModel @Inject constructor(
 
     fun confirmarBorrado() {
         viewModelScope.launch {
-            _eventoABorrar.value?.let {
-                eliminarEventoUseCase(it)
+            _eventoABorrar.value?.let { evento ->
+                NotificacionScheduler.cancelarRecordatorio(context, evento.id ?: 0L)
+                eliminarEventoUseCase(evento)
                 _eventoABorrar.value = null
             }
         }

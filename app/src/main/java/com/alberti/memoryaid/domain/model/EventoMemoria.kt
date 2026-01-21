@@ -5,5 +5,8 @@ data class EventoMemoria(
     val titulo: String,
     val descripcion: String,
     val fechaHora: Long,
-    val tipo: TipoEvento? = null
+    val tipo: TipoEvento? = null,
+    val recordatorioActivo: Boolean = false,
+    val fechaRecordatorio: Long? = null,
+    val frecuenciaHoras: Int = 0
 )

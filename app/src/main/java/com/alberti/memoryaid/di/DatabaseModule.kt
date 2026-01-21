@@ -22,7 +22,9 @@ object DatabaseModule {
             context,
             MemoriaDatabase::class.java,
             "memoria_db"
-        ).build()
+        )
+            .fallbackToDestructiveMigration(false)
+            .build()
     }
 
     @Provides

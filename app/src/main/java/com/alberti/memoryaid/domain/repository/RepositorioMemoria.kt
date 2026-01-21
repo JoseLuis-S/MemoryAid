@@ -5,7 +5,7 @@ import com.alberti.memoryaid.domain.model.TipoEvento
 import kotlinx.coroutines.flow.Flow
 
 interface RepositorioMemoria {
-    suspend fun guardarEvento(evento: EventoMemoria)
+    suspend fun insertarEvento(evento: EventoMemoria): Long
     suspend fun eliminarEvento(evento: EventoMemoria)
     fun obtenerTodosLosEventos(): Flow<List<EventoMemoria>>
     fun obtenerEventosPorTipo(tipo: TipoEvento): Flow<List<EventoMemoria>>

@@ -32,8 +32,8 @@ class RepositorioMemoriaImpl @Inject constructor (
         }
     }
 
-    override suspend fun guardarEvento(evento: EventoMemoria) {
-        dao.insertar(evento.toEntity())
+    override suspend fun insertarEvento(evento: EventoMemoria): Long {
+        return dao.insertar(evento.toEntity())
     }
 
     override suspend fun eliminarEvento(evento: EventoMemoria) {

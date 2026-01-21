@@ -11,8 +11,11 @@ class AgregarEventoUseCase @Inject constructor(private val repositorio: Reposito
         titulo: String,
         descripcion: String,
         fechaHora: Long,
-        tipo: TipoEvento?
-    ): Result<Unit> {
+        tipo: TipoEvento?,
+        recordatorioActivo: Boolean,
+        fechaRecordatorio: Long?,
+        frecuenciaHoras: Int
+    ): Result<Long> {
 
         if (titulo.isBlank()) {
             return Result.failure(Exception("El título no puede estar vacío"))
@@ -22,12 +25,15 @@ class AgregarEventoUseCase @Inject constructor(private val repositorio: Reposito
             titulo = titulo,
             descripcion = descripcion,
             fechaHora = fechaHora,
-            tipo = tipo
+            tipo = tipo,
+            recordatorioActivo = recordatorioActivo,
+            fechaRecordatorio = fechaRecordatorio,
+            frecuenciaHoras = frecuenciaHoras
         )
 
         return try {
-            repositorio.guardarEvento(nuevoEvento)
-            Result.success(Unit)
+            val id = repositorio.insertarEvento(nuevoEvento)
+            Result.success(id)
         } catch (e: Exception) {
             Result.failure(e)
         }
