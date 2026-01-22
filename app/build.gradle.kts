@@ -42,8 +42,15 @@ android {
     }
 }
 
-dependencies {
+configurations.all {
+    resolutionStrategy {
+        force("androidx.test:rules:1.6.1")
+        force("androidx.test:runner:1.6.2")
+        force("androidx.test:monitor:1.7.2")
+    }
+}
 
+dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -61,13 +68,11 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     implementation(libs.lottie.compose)
 
-    // Unit Testing
     testImplementation(libs.junit)
     testImplementation(libs.mockito.kotlin)
     testImplementation(libs.coroutines.test)
     testImplementation(libs.turbine)
 
-    // Instrumentation Testing
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
@@ -80,16 +85,13 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
-    // Navigation
     implementation(libs.androidx.navigation.compose)
     implementation(libs.kotlinx.serialization.json)
 
-    // Hilt (Dependency Injection)
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
 
-    // Room (Persistence)
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)
