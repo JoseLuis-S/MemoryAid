@@ -111,10 +111,17 @@ class HomeViewModel @Inject constructor(
     }
 
     fun alClickAdmin() {
-        if (sessionManager.rolActual.value == UserRole.ADMIN) {
-            _uiState.update { it.copy(navegarAAdmin = true) }
-        } else {
-            _uiState.update { it.copy(mostrarDialogoPin = true, pinInput = "", errorPin = null) }
+        viewModelScope.launch {
+            if (sessionManager.rolActual.value == UserRole.ADMIN) {
+                _uiState.update { it.copy(navegarAAdmin = true) }
+            } else {
+                val pinExistente = sessionManager.obtenerPin().firstOrNull()
+                if (pinExistente.isNullOrBlank()) {
+                    _uiState.update { it.copy(mostrarDialogoConfigInicial = true) }
+                } else {
+                    _uiState.update { it.copy(mostrarDialogoPin = true, pinInput = "", errorPin = null) }
+                }
+            }
         }
     }
 
@@ -137,6 +144,10 @@ class HomeViewModel @Inject constructor(
 
     fun ocultarDialogoPin() {
         _uiState.update { it.copy(mostrarDialogoPin = false) }
+    }
+
+    fun ocultarDialogoConfigInicial() {
+        _uiState.update { it.copy(mostrarDialogoConfigInicial = false) }
     }
 
     fun resetNavegacionAdmin() {

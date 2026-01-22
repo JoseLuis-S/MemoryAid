@@ -72,6 +72,41 @@ fun HomeScreen(
         )
     }
 
+    if (estado.mostrarDialogoConfigInicial) {
+        AlertDialog(
+            onDismissRequest = { viewModel.ocultarDialogoConfigInicial() },
+            shape = RoundedCornerShape(28.dp),
+            containerColor = MaterialTheme.colorScheme.surface,
+            title = {
+                Text(
+                    text = "Configuración Requerida",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Text(
+                    text = "No se ha detectado un PIN de administrador. Debe establecer uno por primera vez para acceder a las estadísticas.",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        viewModel.ocultarDialogoConfigInicial()
+                        alNavegarAAdmin()
+                    },
+                    shape = RoundedCornerShape(12.dp)
+                ) { Text("Configurar ahora") }
+            },
+            dismissButton = {
+                TextButton(onClick = { viewModel.ocultarDialogoConfigInicial() }) {
+                    Text("Cancelar", color = MaterialTheme.colorScheme.secondary)
+                }
+            }
+        )
+    }
+
     if (estado.mostrarDialogoConfigContacto) {
         var numTemp by remember { mutableStateOf(contactoEmergencia ?: "") }
         AlertDialog(
