@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
+import com.alberti.memoryaid.R
 import com.alberti.memoryaid.app.MainActivity
 
 object NotificationHelper {
@@ -46,7 +47,7 @@ object NotificationHelper {
         )
 
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(androidx.core.R.drawable.notification_bg)
+            .setSmallIcon(R.drawable.ic_notification_small)
             .setContentTitle(titulo)
             .setContentText(contenido)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
