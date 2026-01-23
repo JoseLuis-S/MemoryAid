@@ -270,7 +270,7 @@ https://github.com/JoseLuis-S/MemoryAid/blob/2abc9e91dced7c4b937c82d5b18110fe154
 ### RA6.d Documenta la estructura de la información persistente
 **Justificación:** La estructura de persistencia se basa en una base de datos relacional gestionada por Room. Se ha documentado la entidad principal `EventoMemoria`, detallando sus campos (`id`, `titulo`, `tipo`, `fecha`, etc.) y sus tipos de datos. Esta documentación asegura que el esquema sea comprensible para futuras extensiones o migraciones de datos.
 
-
+https://github.com/JoseLuis-S/MemoryAid/blob/55d9a6596c99fb330a918f1f8610393567e94359/app/src/main/java/com/alberti/memoryaid/domain/model/EventoMemoria.kt#L3-L27
 
 ### RA6.e Manual de usuario y guía de referencia
 **Justificación:** Se incluye un manual detallado en `docs/MANUAL.md` que describe las funcionalidades clave: registro de eventos, configuración de alarmas y visualización de métricas. Se han utilizado capturas de pantalla y pasos numerados para facilitar la comprensión por parte del cuidador, minimizando el riesgo de errores operativos.
@@ -292,13 +292,18 @@ https://github.com/JoseLuis-S/MemoryAid/blob/2abc9e91dced7c4b937c82d5b18110fe154
 * **Pruebas de Integración:** Verificación de la persistencia en la base de datos Room y la comunicación entre capas.
 * **Herramientas:** Uso de **JUnit 5** para la ejecución de tests y **Mockito/Mockk** para el simulado de dependencias, asegurando que los tests sean deterministas y rápidos.
 
+[Link a fichero test](https://github.com/JoseLuis-S/MemoryAid/tree/55d9a6596c99fb330a918f1f8610393567e94359/app/src/test/java/com/alberti/memoryaid)
+
 ### RA8.b Pruebas de integración
 **Justificación:** Se han realizado pruebas de integración para asegurar que los componentes del sistema interactúan correctamente sin fugas de datos o estados inconsistentes.
 * **Capa de Datos:** Validación de los DAOs de Room para asegurar que las consultas (Queries) y transacciones de los eventos de memoria se ejecutan correctamente en el hilo de IO.
 * **Flujo Completo:** Verificación de que el `SessionManager` persiste correctamente el PIN en el DataStore y que este cambio es detectado reactivamente por el `AdminViewModel` para actualizar la interfaz de usuario.
 
+https://github.com/JoseLuis-S/MemoryAid/blob/55d9a6596c99fb330a918f1f8610393567e94359/app/src/test/java/com/alberti/memoryaid/domain/usecase/GenerarInformeUseCaseTest.kt#L13-L45
 
 ### RA8.g Documentación de pruebas
 **Justificación:** La infraestructura de pruebas está integrada en el sistema de construcción del proyecto (Gradle).
 * **Localización:** Los tests unitarios residen en `src/test` y los tests de instrumentación en `src/androidTest`, siguiendo las convenciones oficiales de Android.
 * **Informes:** Se utiliza la capacidad de generación de informes de Gradle para documentar el porcentaje de éxito de las pruebas. Cada Use Case crítico cuenta con una suite de pruebas que cubre tanto el "camino feliz" (success) como la gestión de excepciones, garantizando la robustez de MemoryAid ante entradas de datos inesperadas.
+
+[Link a fichero test](https://github.com/JoseLuis-S/MemoryAid/tree/55d9a6596c99fb330a918f1f8610393567e94359/app/src/test/java/com/alberti/memoryaid)
