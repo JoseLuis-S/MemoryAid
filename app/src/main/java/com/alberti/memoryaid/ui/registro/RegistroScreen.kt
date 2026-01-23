@@ -19,13 +19,24 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.alberti.memoryaid.ui.components.FiltrosSeccion
 import com.alberti.memoryaid.ui.components.EventoRegistrado
 import java.text.SimpleDateFormat
 import java.util.*
 
+/**
+ * Pantalla de registro y edición de eventos de memoria.
+ *
+ * Esta pantalla permite al usuario capturar información sobre una actividad,
+ * configurar recordatorios periódicos y categorizar el evento.
+ * Maneja internamente estados complejos como selectores de fecha/hora y
+ * animaciones de éxito post-guardado.
+ *
+ * @param viewModel Instancia de [RegistroViewModel] para la gestión de lógica y estado.
+ * @param onVolver Callback para ejecutar la navegación hacia atrás tras finalizar la tarea.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegistroScreen(
@@ -34,9 +45,15 @@ fun RegistroScreen(
 ) {
     val estado by viewModel.state.collectAsStateWithLifecycle()
 
+    /**
+     * Side-effect que reacciona al éxito del registro.
+     * Navega hacia atrás una vez que el ViewModel confirma la persistencia.
+     */
     LaunchedEffect(estado.registroExitoso) {
         if (estado.registroExitoso) onVolver()
     }
+
+    // --- Componentes de Diálogo (Selectores) ---
 
     if (estado.mostrarDatePicker) {
         val datePickerState = rememberDatePickerState()
@@ -70,6 +87,8 @@ fun RegistroScreen(
         )
     }
 
+    // --- Estructura Principal ---
+
     Box(modifier = Modifier.fillMaxSize()) {
         Scaffold(
             containerColor = MaterialTheme.colorScheme.background,
@@ -99,6 +118,7 @@ fun RegistroScreen(
                     .padding(horizontal = 24.dp, vertical = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
+                // Sección: Entrada de Texto
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Text("Detalles del evento", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.secondary, fontWeight = FontWeight.Bold)
                     OutlinedTextField(
@@ -122,6 +142,7 @@ fun RegistroScreen(
                     )
                 }
 
+                // Sección: Configuración de Recordatorio
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(24.dp),
@@ -169,6 +190,7 @@ fun RegistroScreen(
                     }
                 }
 
+                // Sección: Categoría
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Default.Info, null, modifier = Modifier.size(20.dp), tint = MaterialTheme.colorScheme.primary)
@@ -187,6 +209,7 @@ fun RegistroScreen(
                     }
                 }
 
+                // Acción Final
                 Button(
                     onClick = viewModel::guardarEvento,
                     modifier = Modifier.fillMaxWidth().height(64.dp),
@@ -203,6 +226,7 @@ fun RegistroScreen(
             }
         }
 
+        // Overlay de Éxito
         if (estado.mostrarAnimacionExito) {
             EventoRegistrado()
         }

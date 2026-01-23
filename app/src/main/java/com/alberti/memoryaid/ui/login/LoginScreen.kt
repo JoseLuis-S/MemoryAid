@@ -15,9 +15,19 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
+/**
+ * Punto de entrada principal de la aplicación.
+ * * Esta pantalla gestiona el acceso inicial mediante dos flujos de trabajo:
+ * 1. **Acceso General:** Entrada directa al panel de cuidador mediante [LoginViewModel.entrarComoUsuario].
+ * 2. **Acceso Administrativo:** Desafío de seguridad mediante PIN para funciones de gestión y analíticas.
+ * * Implementa el patrón **Unidirectional Data Flow (UDF)** observando el estado de [LoginViewModel].
+ *
+ * @param onNavegarAHome Callback ejecutado tras una autenticación exitosa para redirigir al flujo principal.
+ * @param viewModel Instancia del [LoginViewModel] inyectada por Hilt para la gestión del estado de sesión.
+ */
 @Composable
 fun LoginScreen(
     onNavegarAHome: () -> Unit,
@@ -25,6 +35,11 @@ fun LoginScreen(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
+    /**
+     * Side-effect para la navegación.
+     * Escucha cambios en el flag [LoginUiState.loginExitoso] para ejecutar la transición
+     * de pantalla fuera del ciclo de composición.
+     */
     LaunchedEffect(state.loginExitoso) {
         if (state.loginExitoso) onNavegarAHome()
     }
@@ -40,6 +55,7 @@ fun LoginScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween
         ) {
+            // Sección de Branding e Identidad Visual
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.padding(top = 40.dp)
@@ -51,7 +67,7 @@ fun LoginScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Default.VolunteerActivism,
-                        contentDescription = null,
+                        contentDescription = "Logo de MemoryAid",
                         modifier = Modifier.padding(24.dp),
                         tint = MaterialTheme.colorScheme.onPrimaryContainer
                     )
@@ -71,10 +87,11 @@ fun LoginScreen(
                 Text(
                     text = "Cuidando a quienes cuidan",
                     style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.primaryContainer // Ajustado para contraste
                 )
             }
 
+            // Sección de Acciones de Usuario
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -118,6 +135,7 @@ fun LoginScreen(
         }
     }
 
+    // --- DIÁLOGO DE SEGURIDAD (ADMIN) ---
     if (state.mostrarDialogoPin) {
         AlertDialog(
             onDismissRequest = { viewModel.ocultarDialogoPin() },

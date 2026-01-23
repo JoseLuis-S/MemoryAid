@@ -21,6 +21,17 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Calendar
 
+/**
+ * ViewModel encargado de la lógica de creación y edición de eventos de memoria.
+ * * Este componente orquestra la validación de entrada, la persistencia mediante casos de uso
+ * y la programación de notificaciones del sistema. Utiliza [SavedStateHandle] para recuperar
+ * argumentos de navegación de forma segura (Type-Safe).
+ * * @property agregarEventoUseCase Interactor para registrar nuevos eventos.
+ * @property actualizarEventoUseCase Interactor para modificar eventos existentes.
+ * @property repositorio Abstracción de datos para la recuperación de eventos por ID.
+ * @property context Contexto de aplicación para la gestión de recordatorios.
+ * @property savedStateHandle Almacén de estado persistente que contiene los argumentos de ruta.
+ */
 @HiltViewModel
 class RegistroViewModel @Inject constructor(
     private val agregarEventoUseCase: AgregarEventoUseCase,
@@ -31,16 +42,21 @@ class RegistroViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(RegistroUiState())
+
+    /** Estado de la interfaz de usuario expuesto de forma inmutable. */
     val state = _state.asStateFlow()
 
+    /** Argumentos de navegación recuperados mediante la clase serializable [RutaRegistro]. */
     private val argumentos = savedStateHandle.toRoute<RutaRegistro>()
 
     init {
+        // Si recibimos un ID, activamos el modo edición cargando los datos previos.
         argumentos.eventoId?.let { id ->
             cargarEventoParaEditar(id)
         }
     }
 
+    /** Recupera un evento de la base de datos y mapea sus propiedades al estado de la UI. */
     private fun cargarEventoParaEditar(id: Long) {
         viewModelScope.launch {
             repositorio.obtenerEventoPorId(id)?.let { evento ->
@@ -58,6 +74,8 @@ class RegistroViewModel @Inject constructor(
             }
         }
     }
+
+    // --- Gestión de Entradas de Usuario ---
 
     fun onTituloChanged(nuevoTitulo: String) {
         _state.update { it.copy(titulo = nuevoTitulo, error = null) }
@@ -79,6 +97,8 @@ class RegistroViewModel @Inject constructor(
         _state.update { it.copy(frecuenciaHoras = frecuencia) }
     }
 
+    // --- Control de Diálogos (Date & Time Pickers) ---
+
     fun toggleDatePicker(mostrar: Boolean) {
         _state.update { it.copy(mostrarDatePicker = mostrar) }
     }
@@ -87,6 +107,10 @@ class RegistroViewModel @Inject constructor(
         _state.update { it.copy(mostrarTimePicker = mostrar) }
     }
 
+    /**
+     * Procesa la fecha seleccionada y dispara automáticamente el selector de hora.
+     * @param millis Marca de tiempo en milisegundos seleccionada en el DatePicker.
+     */
     fun onDateSelected(millis: Long?) {
         millis?.let {
             val cal = Calendar.getInstance().apply { timeInMillis = it }
@@ -97,10 +121,15 @@ class RegistroViewModel @Inject constructor(
             currentRecordatorio.set(Calendar.MONTH, cal.get(Calendar.MONTH))
             currentRecordatorio.set(Calendar.DAY_OF_MONTH, cal.get(Calendar.DAY_OF_MONTH))
 
-            _state.update { it.copy(fechaRecordatorio = currentRecordatorio.timeInMillis, mostrarDatePicker = false, mostrarTimePicker = true) }
+            _state.update { it.copy(
+                fechaRecordatorio = currentRecordatorio.timeInMillis,
+                mostrarDatePicker = false,
+                mostrarTimePicker = true
+            ) }
         }
     }
 
+    /** Completa la configuración del recordatorio con la hora seleccionada. */
     fun onTimeSelected(hour: Int, minute: Int) {
         val cal = Calendar.getInstance().apply {
             timeInMillis = _state.value.fechaRecordatorio ?: System.currentTimeMillis()
@@ -112,6 +141,11 @@ class RegistroViewModel @Inject constructor(
         _state.update { it.copy(fechaRecordatorio = cal.timeInMillis, mostrarTimePicker = false) }
     }
 
+    /**
+     * Orquestador del guardado de datos.
+     * Decide entre creación o actualización, gestiona la animación de éxito y
+     * dispara la programación de notificaciones.
+     */
     fun guardarEvento() {
         viewModelScope.launch {
             _state.update { it.copy(estaGuardando = true) }
@@ -144,11 +178,12 @@ class RegistroViewModel @Inject constructor(
             }
 
             resultado.onSuccess { idRetornado ->
+                // Mantenemos el ID original si es edición, o usamos el nuevo ID generado.
                 val idFinal = if (esEdicion) idExistente else (idRetornado as? Long)
                 idFinal?.let { gestionarNotificacion(it) }
 
                 _state.update { it.copy(estaGuardando = false, mostrarAnimacionExito = true) }
-                delay(2000)
+                delay(2000) // Tiempo para visualizar la animación de éxito
                 _state.update { it.copy(registroExitoso = true) }
             }.onFailure { e ->
                 _state.update { it.copy(estaGuardando = false, error = e.message) }
@@ -156,6 +191,10 @@ class RegistroViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Sincroniza los recordatorios de la aplicación con el estado del evento.
+     * Programa avisos únicos o periódicos, o los cancela si el recordatorio fue desactivado.
+     */
     private fun gestionarNotificacion(id: Long) {
         val st = _state.value
         if (st.recordatorioActivo && st.fechaRecordatorio != null) {

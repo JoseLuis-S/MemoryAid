@@ -25,7 +25,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.alberti.memoryaid.ui.components.BuscadorBar
 import com.alberti.memoryaid.ui.components.ConfirmacionBorradoDialog
@@ -33,6 +33,20 @@ import com.alberti.memoryaid.ui.components.EventoItem
 import com.alberti.memoryaid.ui.components.FiltrosSeccion
 import com.alberti.memoryaid.ui.components.ResumenDiarioWidget
 
+/**
+ * Pantalla principal de la aplicación MemoryAid.
+ * * Actúa como el centro de control para el usuario, integrando visualización de métricas diarias,
+ * búsqueda reactiva de eventos y un sistema de acceso rápido para emergencias.
+ * * **Responsabilidades:**
+ * 1. **Gestión de Estados:** Observa múltiples flujos de datos (eventos, resúmenes, filtros) de forma segura para el ciclo de vida.
+ * 2. **Seguridad:** Actúa como guardián para el panel de administración mediante diálogos de validación de PIN.
+ * 3. **Hardware:** Gestiona la solicitud de permisos de tiempo de ejecución para llamadas telefónicas.
+ * 4. **Navegación:** Orquesta el flujo hacia la creación, edición y configuración del sistema.
+ * * @param viewModel Instancia del [HomeViewModel] inyectada por Hilt.
+ * @param alNavegarARegistro Callback para dirigirse al formulario de creación de eventos.
+ * @param alEditarEvento Callback para editar un evento existente mediante su ID.
+ * @param alNavegarAAdmin Callback para acceder al panel de analíticas avanzadas.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
@@ -49,6 +63,10 @@ fun HomeScreen(
     val eventoABorrar by viewModel.eventoABorrar.collectAsStateWithLifecycle()
     val contactoEmergencia by viewModel.contactoEmergencia.collectAsStateWithLifecycle()
 
+    /**
+     * Lanzador para la solicitud de permisos de sistema.
+     * Si el permiso [Manifest.permission.CALL_PHONE] es concedido, procede con la llamada directa.
+     */
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
@@ -57,6 +75,7 @@ fun HomeScreen(
         }
     }
 
+    // Navegación reactiva basada en cambios de estado del ViewModel
     LaunchedEffect(estado.navegarAAdmin) {
         if (estado.navegarAAdmin) {
             alNavegarAAdmin()
@@ -64,6 +83,9 @@ fun HomeScreen(
         }
     }
 
+    // --- SECCIÓN DE DIÁLOGOS (Side-effects visuales) ---
+
+    // Confirmación de borrado
     eventoABorrar?.let { evento ->
         ConfirmacionBorradoDialog(
             nombreEvento = evento.titulo,
@@ -72,6 +94,7 @@ fun HomeScreen(
         )
     }
 
+    // Aviso de configuración inicial si no existe PIN
     if (estado.mostrarDialogoConfigInicial) {
         AlertDialog(
             onDismissRequest = { viewModel.ocultarDialogoConfigInicial() },
@@ -107,6 +130,7 @@ fun HomeScreen(
         )
     }
 
+    // Configuración del número de emergencia
     if (estado.mostrarDialogoConfigContacto) {
         var numTemp by remember { mutableStateOf(contactoEmergencia ?: "") }
         AlertDialog(
@@ -151,6 +175,7 @@ fun HomeScreen(
         )
     }
 
+    // Entrada de PIN para acceso administrativo
     if (estado.mostrarDialogoPin) {
         AlertDialog(
             onDismissRequest = { viewModel.ocultarDialogoPin() },
@@ -210,6 +235,8 @@ fun HomeScreen(
         )
     }
 
+    // --- ESTRUCTURA DE LA INTERFAZ ---
+
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
@@ -266,6 +293,7 @@ fun HomeScreen(
             contentPadding = PaddingValues(bottom = 100.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+            // Widget de Emergencia: Gestión proactiva de llamadas
             item {
                 Card(
                     modifier = Modifier
@@ -325,12 +353,14 @@ fun HomeScreen(
                 }
             }
 
+            // Resumen Visual Diario
             item {
                 Box(modifier = Modifier.padding(horizontal = 20.dp)) {
                     ResumenDiarioWidget(resumen = resumen)
                 }
             }
 
+            // Sección de Búsqueda y Filtrado
             item {
                 Column(
                     modifier = Modifier
@@ -349,6 +379,7 @@ fun HomeScreen(
                 }
             }
 
+            // Listado de Eventos / Estado Vacío
             if (listaEventos.isEmpty() && !estado.estaCargando) {
                 item {
                     Column(
