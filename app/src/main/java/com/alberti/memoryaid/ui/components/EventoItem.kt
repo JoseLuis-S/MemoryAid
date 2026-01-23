@@ -25,6 +25,17 @@ import com.alberti.memoryaid.domain.model.TipoEvento
 import java.text.SimpleDateFormat
 import java.util.Locale
 
+/**
+ * Representación visual de un evento de memoria en forma de tarjeta.
+ *
+ * Este componente adapta su esquema de color e iconografía basándose en el [TipoEvento]
+ * para facilitar una rápida identificación visual por parte del usuario o cuidador.
+ * Implementa el patrón de diseño Material 3 e incluye indicadores de recordatorios activos.
+ *
+ * @param evento El objeto de dominio [EventoMemoria] que contiene la información a mostrar.
+ * @param alEliminar Callback disparado al presionar el icono de borrado.
+ * @param alEditar Callback disparado al hacer clic en cualquier área de la tarjeta.
+ */
 @Composable
 fun EventoItem(
     evento: EventoMemoria,
@@ -33,6 +44,7 @@ fun EventoItem(
 ) {
     val formatter = SimpleDateFormat("HH:mm · dd MMM", Locale.getDefault())
 
+    // Lógica de mapeo visual según el tipo de evento
     val containerColor = when (evento.tipo) {
         TipoEvento.CRISIS_CONDUCTA -> MaterialTheme.colorScheme.errorContainer
         TipoEvento.MEDICACION -> MaterialTheme.colorScheme.secondaryContainer
@@ -63,9 +75,10 @@ fun EventoItem(
         Row(
             modifier = Modifier
                 .padding(16.dp)
-                .height(IntrinsicSize.Min),
+                .height(IntrinsicSize.Min), // Optimización para alineación vertical
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // Contenedor del icono decorativo
             Surface(
                 modifier = Modifier.size(48.dp),
                 shape = CircleShape,
@@ -81,6 +94,7 @@ fun EventoItem(
 
             Spacer(Modifier.width(16.dp))
 
+            // Información del evento
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = evento.titulo,
@@ -103,6 +117,7 @@ fun EventoItem(
                     )
                 }
 
+                // Metadata: Fecha e indicadores de alerta
                 Row(
                     modifier = Modifier.padding(top = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
@@ -141,10 +156,11 @@ fun EventoItem(
                 }
             }
 
+            // Acción secundaria de borrado
             IconButton(onClick = alEliminar, modifier = Modifier.size(40.dp)) {
                 Icon(
                     imageVector = Icons.Default.Delete,
-                    contentDescription = "Eliminar",
+                    contentDescription = "Eliminar registro",
                     tint = contentColor.copy(alpha = 0.3f),
                     modifier = Modifier.size(20.dp)
                 )

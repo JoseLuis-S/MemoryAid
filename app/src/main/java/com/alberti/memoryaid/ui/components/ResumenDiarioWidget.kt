@@ -21,6 +21,15 @@ import com.alberti.memoryaid.domain.model.TipoEvento
 import com.alberti.memoryaid.R
 import com.airbnb.lottie.compose.*
 
+/**
+ * Widget de resumen de actividad diaria que visualiza estadísticas mediante gráficos y etiquetas.
+ * * Este componente actúa como un dashboard compacto para la pantalla principal. Presenta una
+ * cabecera con el total de eventos, un gráfico de barras proporcional y una lista horizontal
+ * de indicadores detallados por categoría.
+ *
+ * @param resumen Un mapa que asocia cada [TipoEvento] con su cantidad de ocurrencias en el día actual.
+ * @param modifier Modificador para ajustar el posicionamiento y tamaño dentro del layout padre.
+ */
 @Composable
 fun ResumenDiarioWidget(
     resumen: Map<TipoEvento, Int>,
@@ -39,6 +48,7 @@ fun ResumenDiarioWidget(
         Column(
             modifier = Modifier.padding(20.dp)
         ) {
+            // Cabecera: Título e indicador de conteo total
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -78,6 +88,7 @@ fun ResumenDiarioWidget(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
+                // Carrusel horizontal de indicadores por categoría
                 LazyRow(
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
@@ -90,6 +101,11 @@ fun ResumenDiarioWidget(
     }
 }
 
+/**
+ * Visualización para estados sin datos registrados.
+ * * Utiliza una animación de Lottie para proporcionar feedback visual amigable cuando el
+ * historial diario está vacío.
+ */
 @Composable
 private fun EmptyStateVisual() {
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.empty_state))
@@ -115,6 +131,12 @@ private fun EmptyStateVisual() {
     }
 }
 
+/**
+ * Gráfico de barras simple que normaliza la altura de los elementos según el valor máximo.
+ * * La altura de cada barra se calcula mediante la fórmula:
+ * $$h_{barra} = \frac{\text{valor\_actual}}{\text{valor\_maximo}}$$
+ * * @param resumen Datos de actividad para calcular las proporciones de las barras.
+ */
 @Composable
 private fun GraficoBarrasSimple(resumen: Map<TipoEvento, Int>) {
     val maxValor = resumen.values.maxOrNull() ?: 1
@@ -127,6 +149,7 @@ private fun GraficoBarrasSimple(resumen: Map<TipoEvento, Int>) {
         verticalAlignment = Alignment.Bottom
     ) {
         resumen.forEach { (tipo, cuenta) ->
+            // Animación de crecimiento de la barra al cargar
             val altoProporcional = (cuenta.toFloat() / maxValor.toFloat())
             val animado by animateFloatAsState(
                 targetValue = altoProporcional,
@@ -151,6 +174,11 @@ private fun GraficoBarrasSimple(resumen: Map<TipoEvento, Int>) {
     }
 }
 
+/**
+ * Chip informativo que muestra el conteo específico de un tipo de evento.
+ * * @param tipo Categoría del evento que determina el esquema de color.
+ * @param cuenta Valor numérico de incidencias.
+ */
 @Composable
 private fun IndicadorEstadistico(tipo: TipoEvento, cuenta: Int) {
     val (bgColor, contentColor) = when (tipo) {

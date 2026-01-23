@@ -24,12 +24,21 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
+/**
+ * Componente visual que muestra una comparativa porcentual entre tomas de medicación y crisis registradas.
+ * * Utiliza una barra segmentada horizontal donde el ancho de cada sección es proporcional a su cantidad
+ * respecto al total, implementado mediante el modificador [Modifier.weight].
+ * * @param medicinas Cantidad total de eventos de medicación.
+ * @param crisis Cantidad total de eventos de crisis de conducta.
+ * @param modifier Modificador para ajustar el diseño externo del componente.
+ */
 @Composable
 fun GraficoComparativo(
     medicinas: Int,
     crisis: Int,
     modifier: Modifier = Modifier
 ) {
+    // Cálculo de proporciones para la distribución del peso (weight) en la Row
     val total = (medicinas + crisis).toFloat()
     val pctMedicinas = if (total > 0) medicinas / total else 0.5f
     val pctCrisis = if (total > 0) crisis / total else 0.5f
@@ -43,6 +52,7 @@ fun GraficoComparativo(
             modifier = Modifier.padding(bottom = 12.dp)
         )
 
+        // Barra de progreso segmentada
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -68,6 +78,7 @@ fun GraficoComparativo(
             }
         }
 
+        // Fila de leyendas informativas
         Row(
             modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -86,6 +97,12 @@ fun GraficoComparativo(
     }
 }
 
+/**
+ * Representación de un elemento de la leyenda del gráfico.
+ * * @param label Etiqueta descriptiva del dato.
+ * @param cantidad Valor numérico a mostrar.
+ * @param color Color del indicador circular asociado.
+ */
 @Composable
 fun LeyendaItem(label: String, cantidad: Int, color: Color) {
     Row(verticalAlignment = Alignment.CenterVertically) {

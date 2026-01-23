@@ -17,6 +17,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
+/**
+ * Componente de búsqueda personalizado con estilo Material 3.
+ * * Proporciona un campo de entrada estilizado para el filtrado dinámico de eventos.
+ * Incluye un icono de búsqueda decorativo y un botón de limpieza funcional que aparece
+ * únicamente cuando el campo contiene texto.
+ *
+ * @param query El texto actual de búsqueda que se mostrará en el campo.
+ * @param alCambiarQuery Callback que se dispara cada vez que el usuario modifica el texto
+ * o presiona el botón de limpiar.
+ */
 @Composable
 fun BuscadorBar(
     query: String,
@@ -38,16 +48,17 @@ fun BuscadorBar(
         leadingIcon = {
             Icon(
                 Icons.Default.Search,
-                contentDescription = null,
+                contentDescription = null, // Decorativo, no requiere descripción para accesibilidad
                 tint = MaterialTheme.colorScheme.primary
             )
         },
         trailingIcon = {
+            // El botón de limpieza solo se muestra si hay contenido
             if (query.isNotEmpty()) {
                 IconButton(onClick = { alCambiarQuery("") }) {
                     Icon(
                         Icons.Default.Close,
-                        contentDescription = null,
+                        contentDescription = "Limpiar búsqueda",
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }

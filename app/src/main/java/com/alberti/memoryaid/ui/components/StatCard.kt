@@ -16,6 +16,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+/**
+ * Tarjeta de información estadística diseñada para el panel de administración.
+ * * Proporciona una visualización rápida de métricas clave mediante una jerarquía
+ * tipográfica clara que enfatiza el valor numérico sobre la etiqueta.
+ * * @param titulo Texto identificador de la métrica (se renderiza en mayúsculas).
+ * @param valor Dato principal a destacar, generalmente numérico.
+ * @param subtitulo Información contextual opcional (ej: tendencia o comparativa porcentual).
+ * @param containerColor Color de fondo del contenedor, por defecto usa el esquema secundario.
+ * @param contentColor Color para los textos, adaptado automáticamente al fondo por defecto.
+ * @param modifier Modificador para ajustar el layout (pesos, dimensiones, etc.).
+ */
 @Composable
 fun StatCard(
     titulo: String,

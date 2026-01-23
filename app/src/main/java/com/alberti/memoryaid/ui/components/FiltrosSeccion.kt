@@ -15,6 +15,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.alberti.memoryaid.domain.model.TipoEvento
 
+/**
+ * Fila horizontal de selección de categorías para filtrar el historial de eventos.
+ * * Implementa una [LazyRow] que muestra chips interactivos basados en el enumerado [TipoEvento].
+ * El componente gestiona un estado de selección único, permitiendo filtrar por una categoría
+ * específica o mostrar todos los registros mediante una selección nula.
+ *
+ * @param seleccionado El [TipoEvento] actualmente activo. Si es `null`, se resalta la opción "Todo el historial".
+ * @param alSeleccionar Callback que devuelve el [TipoEvento] seleccionado o `null` si se desea limpiar el filtro.
+ */
 @Composable
 fun FiltrosSeccion(
     seleccionado: TipoEvento?,
@@ -25,6 +34,7 @@ fun FiltrosSeccion(
         horizontalArrangement = Arrangement.spacedBy(10.dp),
         modifier = Modifier.height(64.dp)
     ) {
+        // Opción estática para limpiar filtros
         item {
             FilterChip(
                 selected = seleccionado == null,
@@ -40,6 +50,8 @@ fun FiltrosSeccion(
                 )
             )
         }
+
+        // Opciones dinámicas basadas en el dominio
         items(TipoEvento.entries.toTypedArray()) { tipo ->
             FilterChip(
                 selected = seleccionado == tipo,

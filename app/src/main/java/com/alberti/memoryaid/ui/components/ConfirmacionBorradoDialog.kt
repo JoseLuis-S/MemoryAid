@@ -16,6 +16,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
+/**
+ * Diálogo de confirmación para acciones destructivas (eliminación).
+ * * Este componente sigue los patrones de diseño de **Material 3** para diálogos de alerta,
+ * proporcionando una advertencia visual clara mediante el uso de colores de error
+ * y tipografía enfatizada. Se utiliza para prevenir la pérdida accidental de datos
+ * requiriendo una confirmación explícita del usuario.
+ * * @param nombreEvento Texto descriptivo del elemento que se va a eliminar (ej. el título de una nota).
+ * @param onConfirmar Callback ejecutado cuando el usuario acepta la eliminación definitiva.
+ * @param onDescartar Callback ejecutado cuando el usuario cancela la acción o cierra el diálogo.
+ */
 @Composable
 fun ConfirmacionBorradoDialog(
     nombreEvento: String,
@@ -29,7 +39,7 @@ fun ConfirmacionBorradoDialog(
         icon = {
             Icon(
                 imageVector = Icons.Default.DeleteOutline,
-                contentDescription = null,
+                contentDescription = null, // Icono decorativo que refuerza el título
                 tint = MaterialTheme.colorScheme.error
             )
         },

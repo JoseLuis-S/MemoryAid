@@ -29,6 +29,18 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.alberti.memoryaid.ui.components.GraficoComparativo
 import com.alberti.memoryaid.ui.components.StatCard
 
+/**
+ * Pantalla de Administración de la aplicación.
+ * * Proporciona una interfaz para que el administrador o cuidador gestione parámetros críticos:
+ * 1. **Métricas y Analíticas:** Visualización de tendencias y conteo de eventos semanales.
+ * 2. **Seguridad:** Configuración y cambio del PIN de acceso.
+ * 3. **Configuración de Emergencia:** Gestión del contacto de ayuda rápida.
+ * 4. **Exportación:** Generación y envío de informes clínicos vía Intent.
+ * 5. **Mantenimiento:** Purgado total de la base de datos local.
+ *
+ * @param viewModel Instancia de [AdminViewModel] inyectada mediante Hilt.
+ * @param onBack Callback para ejecutar la navegación hacia atrás en el stack.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminScreen(
@@ -38,6 +50,11 @@ fun AdminScreen(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
+    /**
+     * Efecto secundario que escucha cambios en la propiedad 'informeGenerado'.
+     * Cuando el ViewModel produce un informe, se dispara el Chooser de Android
+     * para compartir el texto plano.
+     */
     LaunchedEffect(state.informeGenerado) {
         state.informeGenerado?.let { texto ->
             val intent = Intent(Intent.ACTION_SEND).apply {
@@ -50,6 +67,9 @@ fun AdminScreen(
         }
     }
 
+    // --- DIÁLOGOS DE INTERACCIÓN ---
+
+    /** Diálogo para establecer o cambiar el PIN de seguridad */
     if (state.mostrarDialogoPin) {
         AlertDialog(
             onDismissRequest = { if (!state.necesitaConfiguracion) viewModel.mostrarDialogoPin(false) },
@@ -101,6 +121,7 @@ fun AdminScreen(
         )
     }
 
+    /** Diálogo para actualizar el número de contacto de emergencia */
     if (state.mostrarDialogoEmergencia) {
         AlertDialog(
             onDismissRequest = { viewModel.mostrarDialogoEmergencia(false) },
@@ -119,6 +140,7 @@ fun AdminScreen(
         )
     }
 
+    /** Diálogo de advertencia crítica para el purgado de datos */
     if (state.mostrarConfirmacionPurga) {
         AlertDialog(
             onDismissRequest = { viewModel.mostrarDialogoPurga(false) },
@@ -133,6 +155,8 @@ fun AdminScreen(
             dismissButton = { TextButton(onClick = { viewModel.mostrarDialogoPurga(false) }) { Text("CANCELAR") } }
         )
     }
+
+    // --- ESTRUCTURA PRINCIPAL (SCAFFOLD) ---
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -158,6 +182,7 @@ fun AdminScreen(
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                 }
                 state.necesitaConfiguracion -> {
+                    // Estado visual cuando aún no se ha definido el PIN inicial
                     Column(
                         modifier = Modifier.align(Alignment.Center),
                         horizontalAlignment = Alignment.CenterHorizontally
@@ -177,6 +202,7 @@ fun AdminScreen(
                     }
                 }
                 else -> {
+                    // Dashboard principal con Scroll vertical
                     Column(
                         modifier = Modifier
                             .padding(horizontal = 20.dp)
@@ -191,6 +217,7 @@ fun AdminScreen(
                             fontWeight = FontWeight.Bold
                         )
 
+                        // Fila de tarjetas de estadísticas rápidas
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                             StatCard(
                                 titulo = "Medicinas",
@@ -207,6 +234,7 @@ fun AdminScreen(
                             )
                         }
 
+                        // Sección del gráfico comparativo
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(24.dp),
@@ -225,6 +253,7 @@ fun AdminScreen(
 
                         HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.1f))
 
+                        // Botón de exportación de informe
                         Button(
                             onClick = { viewModel.exportarInforme() },
                             modifier = Modifier.fillMaxWidth().height(64.dp),
@@ -236,6 +265,7 @@ fun AdminScreen(
                             Text("GENERAR INFORME CLÍNICO", fontWeight = FontWeight.Bold)
                         }
 
+                        // Botones secundarios de configuración
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                             OutlinedButton(onClick = { viewModel.mostrarDialogoEmergencia(true) }, modifier = Modifier.weight(1f).height(56.dp)) {
                                 Icon(Icons.Default.Phone, null); Spacer(Modifier.width(8.dp)); Text("TELÉFONO")
@@ -245,6 +275,7 @@ fun AdminScreen(
                             }
                         }
 
+                        // Sección de acciones irreversibles
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(24.dp),
