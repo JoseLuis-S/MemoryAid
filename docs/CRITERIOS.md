@@ -77,7 +77,6 @@ Este documento detalla el cumplimiento de los Resultados de Aprendizaje (RA) exi
 
 ### RA1.b Crea interfaz gráfica
 **Justificación:** La interfaz es profesional y sigue las guías de **Material Design 3**. Se ha estructurado mediante un sistema de estados (`HomeUiState`, `AdminUiState`) que garantiza una representación coherente de la lógica de negocio en la vista. La navegación es fluida gracias a `Navigation Compose`.
-* **Implementación:** [Ver HomeScreen.kt](PON_AQUÍ_TU_PERMALINK)
 
 ### RA1.c Uso de layouts y posicionamiento
 **Justificación:** Se utiliza una jerarquía visual avanzada. Se emplea `Scaffold` para la estructura básica (TopBars, FABs), `LazyColumn` para la gestión eficiente de listas con scroll y componentes de organización como `Box`, `Row` y `Column` con modificadores de peso (`weight`) para asegurar la adaptabilidad a diferentes tamaños de pantalla.
@@ -93,7 +92,6 @@ Este documento detalla el cumplimiento de los Resultados de Aprendizaje (RA) exi
 
 ### RA1.f Modificación del código
 **Justificación:** Se ha realizado una refactorización crítica en la lógica de seguridad del administrador. Originalmente, el acceso era directo; se modificó para incluir un flujo de validación de PIN y una pantalla de "Configuración Inicial" que se dispara reactivamente si el DataStore detecta que no hay credenciales registradas.
-* **Implementación de la mejora:** [Ver AdminViewModel.kt - verificarConfiguracion](PON_AQUÍ_TU_PERMALINK)
 
 ### RA1.g Asociación de eventos
 **Justificación:** Gestión completa de eventos de usuario (clicks, gestos, entrada de texto) vinculados a lógica de negocio. Se utilizan callbacks eficientes para la edición de eventos, borrado con confirmación y ejecución de llamadas de emergencia mediante el sistema de permisos de Android.
@@ -122,7 +120,6 @@ Este documento detalla el cumplimiento de los Resultados de Aprendizaje (RA) exi
 **Justificación:** Implementación de **Gestos Táctiles y Hápticos**.
 * **Implementación real:** Se ha integrado un sistema de feedback táctil mediante `VibrationEffect`. Al confirmar una acción crítica (guardar registro), el dispositivo emite un patrón de vibración específico.
 * **Propuesta adicional:** Implementación de gestos de movimiento mediante el acelerómetro (Shake to SOS), permitiendo que un movimiento brusco del terminal dispare la llamada de emergencia sin necesidad de buscar el botón en pantalla.
-* **Código de referencia:** [Ver ejecución de vibración en RegistroViewModel/Screen](URL_A_TU_PERMALINK)
 
 ### RA2.e Detección facial/corporal (Propuesta técnica)
 **Justificación:** Uso de `ML Kit Face Detection` para monitorización del estado de ánimo.
@@ -145,13 +142,11 @@ Este documento detalla el cumplimiento de los Resultados de Aprendizaje (RA) exi
 
 ### RA3.b Componentes reutilizables
 **Justificación:** Se ha seguido una estrategia de diseño atómico para extraer elementos comunes. Componentes como `StatCard`, `ResumenDiarioWidget`, `BuscadorBar` y `EventoItem` residen en un paquete independiente (`ui.components`), permitiendo su uso en múltiples pantallas sin duplicar lógica.
-* **Implementación:** [Ver paquete ui.components](URL_A_TU_REPOSITORIO/app/src/main/java/com/alberti/memoryaid/ui/components)
 
 ### RA3.c Parámetros y defaults
 **Justificación:** Los componentes están diseñados para ser flexibles mediante el paso de parámetros. Se hace un uso intensivo de **valores por defecto** para simplificar su implementación:
 * **Modificadores:** Todos los componentes aceptan un `modifier: Modifier = Modifier`, permitiendo al padre controlar el layout sin romper el encapsulamiento del hijo.
 * **Estados iniciales:** Uso de valores por defecto en tipos de datos primitivos y estados de carga para asegurar que el componente sea funcional "out of the box".
-* **Código de referencia:** [Ver parámetros en EventoItem.kt](URL_A_TU_PERMALINK)
 
 ### RA3.d Eventos en componentes
 **Justificación:** Se implementa el patrón **State Hoisting** para la gestión de eventos. Los componentes no gestionan su propia lógica de negocio; en su lugar, exponen lambdas (callbacks) para que el padre decida la acción.
