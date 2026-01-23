@@ -78,6 +78,8 @@ Este documento detalla el cumplimiento de los Resultados de Aprendizaje (RA) exi
 ### RA1.b Crea interfaz gráfica
 **Justificación:** La interfaz es profesional y sigue las guías de **Material Design 3**. Se ha estructurado mediante un sistema de estados (`HomeUiState`, `AdminUiState`) que garantiza una representación coherente de la lógica de negocio en la vista. La navegación es fluida gracias a `Navigation Compose`.
 
+https://github.com/JoseLuis-S/MemoryAid/blob/2abc9e91dced7c4b937c82d5b18110fe154848b7/app/src/main/java/com/alberti/memoryaid/ui/home/HomeScreen.kt#L1-L380
+
 ### RA1.c Uso de layouts y posicionamiento
 **Justificación:** Se utiliza una jerarquía visual avanzada. Se emplea `Scaffold` para la estructura básica (TopBars, FABs), `LazyColumn` para la gestión eficiente de listas con scroll y componentes de organización como `Box`, `Row` y `Column` con modificadores de peso (`weight`) para asegurar la adaptabilidad a diferentes tamaños de pantalla.
 
@@ -93,8 +95,12 @@ Este documento detalla el cumplimiento de los Resultados de Aprendizaje (RA) exi
 ### RA1.f Modificación del código
 **Justificación:** Se ha realizado una refactorización crítica en la lógica de seguridad del administrador. Originalmente, el acceso era directo; se modificó para incluir un flujo de validación de PIN y una pantalla de "Configuración Inicial" que se dispara reactivamente si el DataStore detecta que no hay credenciales registradas.
 
+https://github.com/JoseLuis-S/MemoryAid/blob/2abc9e91dced7c4b937c82d5b18110fe154848b7/app/src/main/java/com/alberti/memoryaid/ui/admin/AdminViewModel.kt#L29-L47
+
 ### RA1.g Asociación de eventos
 **Justificación:** Gestión completa de eventos de usuario (clicks, gestos, entrada de texto) vinculados a lógica de negocio. Se utilizan callbacks eficientes para la edición de eventos, borrado con confirmación y ejecución de llamadas de emergencia mediante el sistema de permisos de Android.
+
+https://github.com/JoseLuis-S/MemoryAid/blob/2abc9e91dced7c4b937c82d5b18110fe154848b7/app/src/main/java/com/alberti/memoryaid/ui/home/HomeScreen.kt#L367-L375
 
 ### RA1.h App integrada
 **Justificación:** La aplicación es un producto funcional y estable (v1.0.0). Se gestionan errores de flujo mediante el operador `.catch` de Kotlin Flow y se asegura la persistencia ante reinicios mediante `WorkManager` para las notificaciones programadas.
@@ -143,15 +149,21 @@ Este documento detalla el cumplimiento de los Resultados de Aprendizaje (RA) exi
 ### RA3.b Componentes reutilizables
 **Justificación:** Se ha seguido una estrategia de diseño atómico para extraer elementos comunes. Componentes como `StatCard`, `ResumenDiarioWidget`, `BuscadorBar` y `EventoItem` residen en un paquete independiente (`ui.components`), permitiendo su uso en múltiples pantallas sin duplicar lógica.
 
+[Link a fichero components](https://github.com/JoseLuis-S/MemoryAid/tree/2abc9e91dced7c4b937c82d5b18110fe154848b7/app/src/main/java/com/alberti/memoryaid/ui/components)
+
 ### RA3.c Parámetros y defaults
 **Justificación:** Los componentes están diseñados para ser flexibles mediante el paso de parámetros. Se hace un uso intensivo de **valores por defecto** para simplificar su implementación:
 * **Modificadores:** Todos los componentes aceptan un `modifier: Modifier = Modifier`, permitiendo al padre controlar el layout sin romper el encapsulamiento del hijo.
 * **Estados iniciales:** Uso de valores por defecto en tipos de datos primitivos y estados de carga para asegurar que el componente sea funcional "out of the box".
 
+https://github.com/JoseLuis-S/MemoryAid/blob/2abc9e91dced7c4b937c82d5b18110fe154848b7/app/src/main/java/com/alberti/memoryaid/ui/components/EventoItem.kt#L28-L154
+
 ### RA3.d Eventos en componentes
 **Justificación:** Se implementa el patrón **State Hoisting** para la gestión de eventos. Los componentes no gestionan su propia lógica de negocio; en su lugar, exponen lambdas (callbacks) para que el padre decida la acción.
 * **Ejemplo:** `EventoItem` expone `alEliminar: () -> Unit` y `alEditar: () -> Unit`. Esto permite que el mismo componente se comporte de forma distinta en el Dashboard o en un histórico.
 * **Fluidez:** El uso de lambdas asegura que la interacción sea natural y no bloquee el hilo de la interfaz de usuario.
+
+https://github.com/JoseLuis-S/MemoryAid/blob/2abc9e91dced7c4b937c82d5b18110fe154848b7/app/src/main/java/com/alberti/memoryaid/ui/components/EventoItem.kt#L28-L33
 
 ### RA3.f Documentación
 **Justificación:** La documentación de los componentes se aborda en dos niveles:
@@ -177,6 +189,8 @@ Este documento detalla el cumplimiento de los Resultados de Aprendizaje (RA) exi
 * **Navegación de Gestión:** Menú de administración protegido por PIN en la `TopAppBar`, separando claramente el área de uso diario del área de configuración técnica.
 * **Navegación de Retroceso:** Implementación de patrones de navegación predecibles mediante `onBack` en pantallas secundarias.
 
+https://github.com/JoseLuis-S/MemoryAid/blob/2abc9e91dced7c4b937c82d5b18110fe154848b7/app/src/main/java/com/alberti/memoryaid/ui/home/HomeScreen.kt#L213-L250
+
 ### RA4.d Distribución de acciones
 **Justificación:** Las acciones se distribuyen según su prioridad y frecuencia de uso para reducir la carga cognitiva:
 * **Acción Crítica:** El botón de "Aviso de Emergencia" ocupa una posición prominente y diferenciada por color (errorContainer) en la parte superior del Dashboard.
@@ -193,7 +207,6 @@ Este documento detalla el cumplimiento de los Resultados de Aprendizaje (RA) exi
 
 ### RA4.g Diseño visual
 **Justificación:** Uso de una paleta de colores profesional y sobria. El color primario (Azul) transmite confianza, mientras que los colores de error se reservan exclusivamente para acciones destructivas o de emergencia. La tipografía utiliza pesos variados (`Bold` para títulos, `Medium` para contenido) para guiar el ojo del usuario a través de la información.
-
 
 ### RA4.h Claridad de mensajes
 **Justificación:** La comunicación con el usuario es directa y no técnica.
@@ -219,9 +232,13 @@ Este documento detalla el cumplimiento de los Resultados de Aprendizaje (RA) exi
 **Justificación:** Se implementa el caso de uso `GenerarInformeUseCase`, el cual actúa como orquestador de datos. Este componente consume información directamente del `EventoRepository` (fuente persistente en Room), transforma las entidades de base de datos en strings formateados y permite su exportación mediante un `Intent.ACTION_SEND`, integrándose con el sistema de compartición nativo de Android.
 * **Flujo técnico:** Data Layer (Room) → Domain Layer (UseCase) → Presentation Layer (ViewModel).
 
+https://github.com/JoseLuis-S/MemoryAid/blob/2abc9e91dced7c4b937c82d5b18110fe154848b7/app/src/main/java/com/alberti/memoryaid/domain/usecase/GenerarInformeUseCase.kt#L10-L37
+
 ### RA5.c Establece filtros sobre los valores a presentar
 **Justificación:** El sistema de informes no es estático; permite discriminar la información mediante filtros lógicos antes de la generación.
 * **Implementación:** El `AdminViewModel` permite filtrar los datos que se enviarán al informe basándose en criterios temporales (ej. actividad de la última semana) y por tipología de evento (TipoEvento), asegurando que el informe clínico sea relevante para el periodo de consulta solicitado.
+
+https://github.com/JoseLuis-S/MemoryAid/blob/2abc9e91dced7c4b937c82d5b18110fe154848b7/app/src/main/java/com/alberti/memoryaid/domain/usecase/ObtenerEstadisticasUseCase.kt#L8-L39
 
 ### RA5.d Incluye valores calculados, recuentos o totales
 **Justificación:** La capa de dominio procesa los datos en bruto para generar métricas de valor clínico.
@@ -232,6 +249,8 @@ Este documento detalla el cumplimiento de los Resultados de Aprendizaje (RA) exi
 **Justificación:** Para mejorar la interpretabilidad de los datos, se ha desarrollado el componente `GraficoComparativo`.
 * **Tecnología:** Uso de Jetpack Compose Canvas para dibujar representaciones visuales de la frecuencia de eventos.
 * **Funcionalidad:** El gráfico permite comparar visualmente la relación entre la medicación (adherencia) y las crisis (efectividad), permitiendo detectar patrones de salud de forma inmediata que no serían evidentes en un listado textual.
+
+https://github.com/JoseLuis-S/MemoryAid/blob/2abc9e91dced7c4b937c82d5b18110fe154848b7/app/src/main/java/com/alberti/memoryaid/ui/components/GraficoComparativo.kt#L27-L111
 
 ## 6. Ayuda y Documentación (RA6)
 
@@ -250,6 +269,8 @@ Este documento detalla el cumplimiento de los Resultados de Aprendizaje (RA) exi
 
 ### RA6.d Documenta la estructura de la información persistente
 **Justificación:** La estructura de persistencia se basa en una base de datos relacional gestionada por Room. Se ha documentado la entidad principal `EventoMemoria`, detallando sus campos (`id`, `titulo`, `tipo`, `fecha`, etc.) y sus tipos de datos. Esta documentación asegura que el esquema sea comprensible para futuras extensiones o migraciones de datos.
+
+
 
 ### RA6.e Manual de usuario y guía de referencia
 **Justificación:** Se incluye un manual detallado en `docs/MANUAL.md` que describe las funcionalidades clave: registro de eventos, configuración de alarmas y visualización de métricas. Se han utilizado capturas de pantalla y pasos numerados para facilitar la comprensión por parte del cuidador, minimizando el riesgo de errores operativos.
