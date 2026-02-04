@@ -1,7 +1,5 @@
 # Manual de Proyecto: MemoryAid
 
-> **[Ver Tutorial de Uso y Demostración en YouTube](URL_A_TU_VIDEO_AQUÍ)**
-
 ---
 
 ## 1. Introducción y Propósito
@@ -68,3 +66,4 @@ Para desplegar el entorno de desarrollo:
 * `CALL_PHONE`: Para la función de SOS.
 * `POST_NOTIFICATIONS`: Para los recordatorios de medicación (Android 13+).
 * `RECORD_AUDIO`: Para el dictado de notas por voz.
+
